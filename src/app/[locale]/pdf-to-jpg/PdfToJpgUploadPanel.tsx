@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useId, useRef, useState, type ChangeEvent } from "react";
 
 type PdfToJpgCopy = {
   uploadTitle: string;
@@ -24,6 +24,8 @@ type PdfToJpgUploadPanelProps = {
 };
 
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
+const SIMULATED_STAGES = ["Preparing", "Uploading", "Converting", "Completed"] as const;
+const STAGE_DURATION_MS = 900;
 
 function formatFileSize(bytes: number) {
   if (bytes < 1024) {
@@ -47,12 +49,55 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   const inputId = useId();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string>("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [stageIndex, setStageIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!isProcessing || stageIndex === null) {
+      return;
+    }
+
+    if (stageIndex >= SIMULATED_STAGES.length - 1) {
+      const completeTimeout = window.setTimeout(() => {
+        setIsProcessing(false);
+      }, STAGE_DURATION_MS);
+
+      return () => window.clearTimeout(completeTimeout);
+    }
+
+    const nextStageTimeout = window.setTimeout(() => {
+      setStageIndex((previousStageIndex) => {
+        if (previousStageIndex === null) {
+          return 0;
+        }
+
+        return Math.min(previousStageIndex + 1, SIMULATED_STAGES.length - 1);
+      });
+    }, STAGE_DURATION_MS);
+
+    return () => window.clearTimeout(nextStageTimeout);
+  }, [isProcessing, stageIndex]);
+
+  const resetProgress = () => {
+    setIsProcessing(false);
+    setStageIndex(null);
+  };
 
   const resetSelection = () => {
     setSelectedFile(null);
+    resetProgress();
     if (inputRef.current) {
       inputRef.current.value = "";
     }
+  };
+
+  const handleConvert = () => {
+    if (!selectedFile || Boolean(error) || isProcessing) {
+      return;
+    }
+
+    setIsProcessing(true);
+    setStageIndex(0);
   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -76,8 +121,12 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
     }
 
     setSelectedFile(file);
+    resetProgress();
     setError("");
   };
+
+  const isConvertDisabled = !selectedFile || Boolean(error) || isProcessing;
+  const currentStage = stageIndex === null ? null : SIMULATED_STAGES[stageIndex];
 
   return (
     <div className="rounded-2xl border border-slate-300 bg-white p-8 shadow-sm">
@@ -130,11 +179,19 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
       <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
         <button
           type="button"
-          disabled
-          className="w-full cursor-not-allowed rounded-md bg-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600"
+          onClick={handleConvert}
+          disabled={isConvertDisabled}
+          className={`w-full rounded-md px-5 py-2.5 text-sm font-semibold transition ${
+            isConvertDisabled
+              ? "pointer-events-none cursor-not-allowed bg-slate-300 text-slate-600"
+              : "cursor-pointer bg-slate-900 text-white hover:bg-slate-800"
+          }`}
         >
           Convert
         </button>
+        {currentStage ? (
+          <p className="mt-2 text-center text-sm font-medium text-slate-700">{currentStage}</p>
+        ) : null}
         <p className="mt-2 text-center text-sm text-slate-600">{t.conversionNotConnectedYet}</p>
       </div>
     </div>
