@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Header from "@/components/Header";
 import { isLocale } from "@/lib/i18n";
 
 type LocaleLayoutProps = {
@@ -16,5 +17,10 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <Header locale={locale} />
+      <main className="mx-auto w-full max-w-4xl px-6 py-12">{children}</main>
+    </div>
+  );
 }
