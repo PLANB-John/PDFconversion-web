@@ -7,6 +7,12 @@ type Dictionary = {
   heroTitle: string;
   heroDescription: string;
   buttonText: string;
+  homeFeatureFast: string;
+  homeFeatureSecure: string;
+  homeFeatureSimple: string;
+  pdfToJpgCtaTitle: string;
+  pdfToJpgCtaDescription: string;
+  pdfToJpgCtaButton: string;
   pricing: string;
   privacy: string;
   terms: string;
@@ -16,6 +22,17 @@ type Dictionary = {
   proPlanDescription: string;
   freeFeatures: string[];
   proFeatures: string[];
+  pdfToJpg: {
+    title: string;
+    description: string;
+    uploadTitle: string;
+    dragAndDrop: string;
+    chooseFile: string;
+    supportedFormat: string;
+    limits: string;
+    freePlanNote: string;
+    comingSoon: string;
+  };
   legal: {
     introHeading: string;
     introText: string;
@@ -34,6 +51,12 @@ export const dictionary: Record<Locale, Dictionary> = {
     heroTitle: "간단한 다국어 시작 페이지",
     heroDescription: "App Router에서 한국어, 영어, 일본어, 스페인어, 독일어 라우트를 지원합니다.",
     buttonText: "시작하기",
+    homeFeatureFast: "빠른 변환 워크플로",
+    homeFeatureSecure: "안전한 파일 처리",
+    homeFeatureSimple: "가입 없이 간편 사용",
+    pdfToJpgCtaTitle: "PDF to JPG 변환",
+    pdfToJpgCtaDescription: "PDF 페이지를 고품질 JPG 이미지로 변환하는 도구를 준비 중입니다.",
+    pdfToJpgCtaButton: "PDF to JPG 열기",
     pricing: "요금",
     privacy: "개인정보처리방침",
     terms: "이용약관",
@@ -48,6 +71,17 @@ export const dictionary: Record<Locale, Dictionary> = {
       "우선 처리",
       "KRW / USD 결제 예정",
     ],
+    pdfToJpg: {
+      title: "PDF to JPG",
+      description: "PDF 문서를 JPG 이미지로 변환할 수 있는 업로드 페이지입니다.",
+      uploadTitle: "PDF 파일 업로드",
+      dragAndDrop: "여기에 PDF 파일을 드래그 앤 드롭하세요",
+      chooseFile: "PDF 파일 선택",
+      supportedFormat: "지원 형식: PDF",
+      limits: "무료 플랜 제한: 최대 15MB / 20페이지 / 하루 5회 변환",
+      freePlanNote: "무료 플랜 기준으로 제한이 적용됩니다.",
+      comingSoon: "변환 기능은 곧 제공됩니다. 현재는 UI만 준비되어 있습니다.",
+    },
     legal: {
       introHeading: "개요",
       introText: "본 문서는 서비스 이용 시 적용되는 기본 정책을 설명합니다.",
@@ -66,6 +100,12 @@ export const dictionary: Record<Locale, Dictionary> = {
     heroDescription:
       "Supports Korean, English, Japanese, Spanish, and German routes in the App Router.",
     buttonText: "Get Started",
+    homeFeatureFast: "Fast conversion workflow",
+    homeFeatureSecure: "Secure file handling",
+    homeFeatureSimple: "Simple experience without sign-up",
+    pdfToJpgCtaTitle: "PDF to JPG Conversion",
+    pdfToJpgCtaDescription: "A dedicated tool for turning PDF pages into high-quality JPG images.",
+    pdfToJpgCtaButton: "Open PDF to JPG",
     pricing: "Pricing",
     privacy: "Privacy",
     terms: "Terms",
@@ -80,6 +120,17 @@ export const dictionary: Record<Locale, Dictionary> = {
       "Priority processing",
       "KRW / USD billing planned",
     ],
+    pdfToJpg: {
+      title: "PDF to JPG",
+      description: "Upload your PDF and prepare to export each page as JPG images.",
+      uploadTitle: "Upload your PDF",
+      dragAndDrop: "Drag and drop your PDF file here",
+      chooseFile: "Choose PDF File",
+      supportedFormat: "Supported format: PDF",
+      limits: "Free plan limits: up to 15MB / 20 pages / 5 conversions per day",
+      freePlanNote: "These limits apply to the current free plan.",
+      comingSoon: "Conversion is coming soon. Backend processing is not connected yet.",
+    },
     legal: {
       introHeading: "Overview",
       introText: "This document outlines the core policies that apply to this service.",
@@ -100,6 +151,12 @@ export const dictionary: Record<Locale, Dictionary> = {
     heroDescription:
       "App Router で韓国語・英語・日本語・スペイン語・ドイツ語のルートをサポートします。",
     buttonText: "はじめる",
+    homeFeatureFast: "高速な変換ワークフロー",
+    homeFeatureSecure: "安全なファイル処理",
+    homeFeatureSimple: "登録不要でシンプルに利用",
+    pdfToJpgCtaTitle: "PDF to JPG 変換",
+    pdfToJpgCtaDescription: "PDFページを高品質なJPG画像に変換するツールを準備中です。",
+    pdfToJpgCtaButton: "PDF to JPG を開く",
     pricing: "料金",
     privacy: "プライバシー",
     terms: "利用規約",
@@ -114,6 +171,17 @@ export const dictionary: Record<Locale, Dictionary> = {
       "優先処理",
       "KRW / USD 決済を予定",
     ],
+    pdfToJpg: {
+      title: "PDF to JPG",
+      description: "PDFドキュメントをJPG画像に変換するためのアップロードページです。",
+      uploadTitle: "PDFファイルをアップロード",
+      dragAndDrop: "ここにPDFファイルをドラッグ＆ドロップ",
+      chooseFile: "PDFファイルを選択",
+      supportedFormat: "対応形式: PDF",
+      limits: "無料プランの上限: 15MBまで / 20ページまで / 1日5回まで",
+      freePlanNote: "現在は無料プランの制限が適用されます。",
+      comingSoon: "変換機能は近日公開です。現在バックエンドは未接続です。",
+    },
     legal: {
       introHeading: "概要",
       introText: "本書は本サービスに適用される基本ポリシーを説明します。",
@@ -134,6 +202,12 @@ export const dictionary: Record<Locale, Dictionary> = {
     heroDescription:
       "Admite rutas en coreano, inglés, japonés, español y alemán en App Router.",
     buttonText: "Comenzar",
+    homeFeatureFast: "Flujo de conversión rápido",
+    homeFeatureSecure: "Gestión segura de archivos",
+    homeFeatureSimple: "Experiencia simple sin registro",
+    pdfToJpgCtaTitle: "Conversión de PDF a JPG",
+    pdfToJpgCtaDescription: "Una herramienta para convertir páginas PDF en imágenes JPG de alta calidad.",
+    pdfToJpgCtaButton: "Abrir PDF a JPG",
     pricing: "Precios",
     privacy: "Privacidad",
     terms: "Términos",
@@ -153,6 +227,17 @@ export const dictionary: Record<Locale, Dictionary> = {
       "Procesamiento prioritario",
       "Facturación en KRW / USD próximamente",
     ],
+    pdfToJpg: {
+      title: "PDF a JPG",
+      description: "Sube tu PDF y prepárate para exportar cada página como imagen JPG.",
+      uploadTitle: "Sube tu PDF",
+      dragAndDrop: "Arrastra y suelta tu archivo PDF aquí",
+      chooseFile: "Elegir archivo PDF",
+      supportedFormat: "Formato compatible: PDF",
+      limits: "Límites del plan gratis: hasta 15MB / 20 páginas / 5 conversiones por día",
+      freePlanNote: "Estos límites se aplican al plan gratuito actual.",
+      comingSoon: "La conversión llegará pronto. El backend aún no está conectado.",
+    },
     legal: {
       introHeading: "Resumen",
       introText: "Este documento describe las políticas principales aplicables a este servicio.",
@@ -173,6 +258,12 @@ export const dictionary: Record<Locale, Dictionary> = {
     heroDescription:
       "Unterstützt koreanische, englische, japanische, spanische und deutsche Routen im App Router.",
     buttonText: "Loslegen",
+    homeFeatureFast: "Schneller Konvertierungs-Workflow",
+    homeFeatureSecure: "Sichere Dateiverarbeitung",
+    homeFeatureSimple: "Einfache Nutzung ohne Registrierung",
+    pdfToJpgCtaTitle: "PDF-zu-JPG-Konvertierung",
+    pdfToJpgCtaDescription: "Ein Tool, um PDF-Seiten in hochwertige JPG-Bilder umzuwandeln.",
+    pdfToJpgCtaButton: "PDF zu JPG öffnen",
     pricing: "Preise",
     privacy: "Datenschutz",
     terms: "Nutzungsbedingungen",
@@ -192,6 +283,17 @@ export const dictionary: Record<Locale, Dictionary> = {
       "Priorisierte Verarbeitung",
       "KRW-/USD-Abrechnung geplant",
     ],
+    pdfToJpg: {
+      title: "PDF zu JPG",
+      description: "Lade dein PDF hoch und bereite den Export jeder Seite als JPG-Bild vor.",
+      uploadTitle: "PDF hochladen",
+      dragAndDrop: "Ziehe deine PDF-Datei hierher oder lege sie ab",
+      chooseFile: "PDF-Datei auswählen",
+      supportedFormat: "Unterstütztes Format: PDF",
+      limits: "Free-Plan-Limits: bis zu 15MB / 20 Seiten / 5 Konvertierungen pro Tag",
+      freePlanNote: "Diese Limits gelten im aktuellen Free-Plan.",
+      comingSoon: "Die Konvertierung kommt bald. Das Backend ist noch nicht verbunden.",
+    },
     legal: {
       introHeading: "Überblick",
       introText: "Dieses Dokument beschreibt die zentralen Richtlinien für diesen Dienst.",
