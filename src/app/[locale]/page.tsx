@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { dictionary, type Locale } from "@/lib/i18n";
 
 type LocalePageProps = {
@@ -8,21 +7,15 @@ type LocalePageProps = {
 export default async function LocalePage({ params }: LocalePageProps) {
   const { locale } = await params;
   const t = dictionary[locale];
-  const otherLocale = locale === "ko" ? "en" : "ko";
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
-      <section className="mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center gap-5 px-6 text-center">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{t.siteTitle}</h1>
-        <h2 className="text-2xl font-semibold">{t.heroTitle}</h2>
-        <p className="text-base text-slate-300 sm:text-lg">{t.heroDescription}</p>
-        <button className="rounded-md bg-slate-100 px-4 py-2 font-medium text-slate-900">
-          {t.buttonText}
-        </button>
-        <Link className="text-sm text-slate-300 underline" href={`/${otherLocale}`}>
-          {locale === "ko" ? "English" : "한국어"}
-        </Link>
-      </section>
-    </main>
+    <section className="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center gap-4 text-center">
+      <h1 className="text-4xl font-bold tracking-tight">{t.siteTitle}</h1>
+      <h2 className="text-2xl font-semibold text-slate-800">{t.heroTitle}</h2>
+      <p className="text-base text-slate-600">{t.heroDescription}</p>
+      <button className="rounded-md bg-slate-900 px-4 py-2 font-medium text-white">
+        {t.buttonText}
+      </button>
+    </section>
   );
 }
