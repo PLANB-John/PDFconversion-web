@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type ChangeEvent } from "react";
+import { useId, useRef, useState, type ChangeEvent } from "react";
 
 type PdfToJpgCopy = {
   uploadTitle: string;
@@ -17,6 +17,11 @@ type PdfToJpgCopy = {
   removeFile: string;
   conversionNotConnectedYet: string;
   chooseAnotherFile: string;
+  uploaded: string;
+  uploadSuccess: string;
+  uploadFailed: string;
+  serverValidationError: string;
+  uploadConnectedNotReady: string;
 };
 
 type PdfToJpgUploadPanelProps = {
@@ -24,8 +29,8 @@ type PdfToJpgUploadPanelProps = {
 };
 
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
-const SIMULATED_STAGES = ["Preparing", "Uploading", "Converting", "Completed"] as const;
-const STAGE_DURATION_MS = 900;
+const PREPARING_STAGE = "Preparing";
+const UPLOADING_STAGE = "Uploading";
 
 function formatFileSize(bytes: number) {
   if (bytes < 1024) {
@@ -50,40 +55,16 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [stageIndex, setStageIndex] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!isProcessing || stageIndex === null) {
-      return;
-    }
-
-    if (stageIndex >= SIMULATED_STAGES.length - 1) {
-      const completeTimeout = window.setTimeout(() => {
-        setIsProcessing(false);
-      }, STAGE_DURATION_MS);
-
-      return () => window.clearTimeout(completeTimeout);
-    }
-
-    const nextStageTimeout = window.setTimeout(() => {
-      setStageIndex((previousStageIndex) => {
-        if (previousStageIndex === null) {
-          return 0;
-        }
-
-        return Math.min(previousStageIndex + 1, SIMULATED_STAGES.length - 1);
-      });
-    }, STAGE_DURATION_MS);
-
-    return () => window.clearTimeout(nextStageTimeout);
-  }, [isProcessing, stageIndex]);
+  const [currentStage, setCurrentStage] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string>("");
 
   const resetProgress = () => {
     setIsProcessing(false);
-    setStageIndex(null);
+    setCurrentStage(null);
+    setStatusMessage("");
   };
 
-  const resetSelection = () => {
+  const clearSelection = () => {
     setSelectedFile(null);
     resetProgress();
     if (inputRef.current) {
@@ -91,13 +72,50 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
     }
   };
 
-  const handleConvert = () => {
+  const resetSelection = () => {
+    setError("");
+    clearSelection();
+  };
+
+  const handleConvert = async () => {
     if (!selectedFile || Boolean(error) || isProcessing) {
       return;
     }
 
+    setError("");
+    setStatusMessage("");
     setIsProcessing(true);
-    setStageIndex(0);
+
+    try {
+      setCurrentStage(PREPARING_STAGE);
+
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      setCurrentStage(UPLOADING_STAGE);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const payload = (await response.json().catch(() => null)) as
+        | { ok?: boolean; error?: string }
+        | null;
+
+      if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.error ?? t.serverValidationError);
+      }
+
+      setCurrentStage(t.uploaded);
+      setStatusMessage(`${t.uploadSuccess} ${t.uploadConnectedNotReady}`);
+    } catch (uploadError) {
+      const message = uploadError instanceof Error ? uploadError.message : t.serverValidationError;
+      setError(`${t.uploadFailed} ${message}`);
+      setCurrentStage(null);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -110,13 +128,13 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
 
     if (!isPdfType) {
       setError(t.invalidFileType);
-      resetSelection();
+      clearSelection();
       return;
     }
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
       setError(`${t.fileTooLarge} ${t.maxSizeIs15Mb}`);
-      resetSelection();
+      clearSelection();
       return;
     }
 
@@ -126,7 +144,6 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   };
 
   const isConvertDisabled = !selectedFile || Boolean(error) || isProcessing;
-  const currentStage = stageIndex === null ? null : SIMULATED_STAGES[stageIndex];
 
   return (
     <div className="rounded-2xl border border-slate-300 bg-white p-8 shadow-sm">
@@ -192,7 +209,9 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
         {currentStage ? (
           <p className="mt-2 text-center text-sm font-medium text-slate-700">{currentStage}</p>
         ) : null}
-        <p className="mt-2 text-center text-sm text-slate-600">{t.conversionNotConnectedYet}</p>
+        <p className="mt-2 text-center text-sm text-slate-600">
+          {statusMessage || t.conversionNotConnectedYet}
+        </p>
       </div>
     </div>
   );
