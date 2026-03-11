@@ -32,6 +32,14 @@ type Dictionary = {
     limits: string;
     freePlanNote: string;
     comingSoon: string;
+    selectedFile: string;
+    fileSize: string;
+    invalidFileType: string;
+    fileTooLarge: string;
+    maxSizeIs15Mb: string;
+    removeFile: string;
+    conversionNotConnectedYet: string;
+    chooseAnotherFile: string;
   };
   legal: {
     introHeading: string;
@@ -81,6 +89,14 @@ export const dictionary: Record<Locale, Dictionary> = {
       limits: "무료 플랜 제한: 최대 15MB / 20페이지 / 하루 5회 변환",
       freePlanNote: "무료 플랜 기준으로 제한이 적용됩니다.",
       comingSoon: "변환 기능은 곧 제공됩니다. 현재는 UI만 준비되어 있습니다.",
+      selectedFile: "선택된 파일",
+      fileSize: "파일 크기",
+      invalidFileType: "PDF 파일만 선택할 수 있습니다.",
+      fileTooLarge: "파일이 너무 큽니다.",
+      maxSizeIs15Mb: "최대 크기는 15MB입니다.",
+      removeFile: "파일 제거",
+      conversionNotConnectedYet: "업로드/변환 백엔드는 아직 연결되지 않았습니다.",
+      chooseAnotherFile: "다른 파일 선택",
     },
     legal: {
       introHeading: "개요",
@@ -130,6 +146,14 @@ export const dictionary: Record<Locale, Dictionary> = {
       limits: "Free plan limits: up to 15MB / 20 pages / 5 conversions per day",
       freePlanNote: "These limits apply to the current free plan.",
       comingSoon: "Conversion is coming soon. Backend processing is not connected yet.",
+      selectedFile: "Selected file",
+      fileSize: "File size",
+      invalidFileType: "Only PDF files are allowed.",
+      fileTooLarge: "File is too large.",
+      maxSizeIs15Mb: "Max size is 15MB.",
+      removeFile: "Remove file",
+      conversionNotConnectedYet: "Upload/conversion backend is not connected yet.",
+      chooseAnotherFile: "Choose another file",
     },
     legal: {
       introHeading: "Overview",
@@ -181,6 +205,14 @@ export const dictionary: Record<Locale, Dictionary> = {
       limits: "無料プランの上限: 15MBまで / 20ページまで / 1日5回まで",
       freePlanNote: "現在は無料プランの制限が適用されます。",
       comingSoon: "変換機能は近日公開です。現在バックエンドは未接続です。",
+      selectedFile: "選択したファイル",
+      fileSize: "ファイルサイズ",
+      invalidFileType: "PDFファイルのみ選択できます。",
+      fileTooLarge: "ファイルサイズが大きすぎます。",
+      maxSizeIs15Mb: "最大サイズは15MBです。",
+      removeFile: "ファイルを削除",
+      conversionNotConnectedYet: "アップロード/変換バックエンドはまだ未接続です。",
+      chooseAnotherFile: "別のファイルを選択",
     },
     legal: {
       introHeading: "概要",
@@ -237,6 +269,14 @@ export const dictionary: Record<Locale, Dictionary> = {
       limits: "Límites del plan gratis: hasta 15MB / 20 páginas / 5 conversiones por día",
       freePlanNote: "Estos límites se aplican al plan gratuito actual.",
       comingSoon: "La conversión llegará pronto. El backend aún no está conectado.",
+      selectedFile: "Archivo seleccionado",
+      fileSize: "Tamaño del archivo",
+      invalidFileType: "Solo se permiten archivos PDF.",
+      fileTooLarge: "El archivo es demasiado grande.",
+      maxSizeIs15Mb: "El tamaño máximo es 15MB.",
+      removeFile: "Eliminar archivo",
+      conversionNotConnectedYet: "El backend de carga/conversión aún no está conectado.",
+      chooseAnotherFile: "Elegir otro archivo",
     },
     legal: {
       introHeading: "Resumen",
@@ -293,6 +333,14 @@ export const dictionary: Record<Locale, Dictionary> = {
       limits: "Free-Plan-Limits: bis zu 15MB / 20 Seiten / 5 Konvertierungen pro Tag",
       freePlanNote: "Diese Limits gelten im aktuellen Free-Plan.",
       comingSoon: "Die Konvertierung kommt bald. Das Backend ist noch nicht verbunden.",
+      selectedFile: "Ausgewählte Datei",
+      fileSize: "Dateigröße",
+      invalidFileType: "Nur PDF-Dateien sind erlaubt.",
+      fileTooLarge: "Die Datei ist zu groß.",
+      maxSizeIs15Mb: "Die maximale Größe beträgt 15MB.",
+      removeFile: "Datei entfernen",
+      conversionNotConnectedYet: "Upload-/Konvertierungs-Backend ist noch nicht verbunden.",
+      chooseAnotherFile: "Andere Datei wählen",
     },
     legal: {
       introHeading: "Überblick",
