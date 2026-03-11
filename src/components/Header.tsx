@@ -1,7 +1,5 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { dictionary, type Locale } from "@/lib/i18n";
 
 type HeaderProps = {
@@ -10,12 +8,6 @@ type HeaderProps = {
 
 export default function Header({ locale }: HeaderProps) {
   const t = dictionary[locale];
-  const pathname = usePathname();
-  const otherLocale: Locale = locale === "ko" ? "en" : "ko";
-
-  const switchedPath = pathname
-    ? pathname.replace(new RegExp(`^/${locale}`), `/${otherLocale}`)
-    : `/${otherLocale}`;
 
   return (
     <header className="border-b border-slate-200 bg-white">
@@ -33,9 +25,7 @@ export default function Header({ locale }: HeaderProps) {
           <Link className="hover:text-slate-900" href={`/${locale}/terms`}>
             {t.terms}
           </Link>
-          <Link className="font-medium text-slate-900 underline" href={switchedPath}>
-            {otherLocale}
-          </Link>
+          <LanguageSwitcher locale={locale} />
         </nav>
       </div>
     </header>

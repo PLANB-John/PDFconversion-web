@@ -16,10 +16,9 @@ export default async function PricingPage({ params }: PricingPageProps) {
           <h2 className="text-xl font-semibold">{t.free}</h2>
           <p className="mt-2 text-sm text-slate-600">{t.freePlanDescription}</p>
           <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-slate-700">
-            <li>5 conversions per day</li>
-            <li>Max 15MB file size</li>
-            <li>Max 20 pages</li>
-            <li>150dpi export</li>
+            {t.freeFeatures.map((feature) => (
+              <li key={feature}>{feature}</li>
+            ))}
           </ul>
         </article>
 
@@ -27,10 +26,9 @@ export default async function PricingPage({ params }: PricingPageProps) {
           <h2 className="text-xl font-semibold">{t.pro}</h2>
           <p className="mt-2 text-sm text-slate-600">{t.proPlanDescription}</p>
           <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-slate-700">
-            <li>Higher conversion and file limits</li>
-            <li>300dpi export</li>
-            <li>Priority processing</li>
-            <li>KRW / USD billing planned</li>
+            {t.proFeatures.map((feature) => (
+              <li key={feature}>{feature}</li>
+            ))}
           </ul>
         </article>
       </div>
