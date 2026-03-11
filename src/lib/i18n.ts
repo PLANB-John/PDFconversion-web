@@ -40,6 +40,11 @@ type Dictionary = {
     removeFile: string;
     conversionNotConnectedYet: string;
     chooseAnotherFile: string;
+    uploaded: string;
+    uploadSuccess: string;
+    uploadFailed: string;
+    serverValidationError: string;
+    uploadConnectedNotReady: string;
   };
   legal: {
     introHeading: string;
@@ -97,6 +102,11 @@ export const dictionary: Record<Locale, Dictionary> = {
       removeFile: "파일 제거",
       conversionNotConnectedYet: "업로드/변환 백엔드는 아직 연결되지 않았습니다.",
       chooseAnotherFile: "다른 파일 선택",
+      uploaded: "업로드 완료",
+      uploadSuccess: "업로드에 성공했습니다.",
+      uploadFailed: "업로드 실패:",
+      serverValidationError: "서버 검증 오류가 발생했습니다.",
+      uploadConnectedNotReady: "업로드는 성공했지만 변환 백엔드는 아직 연결되지 않았습니다.",
     },
     legal: {
       introHeading: "개요",
@@ -154,6 +164,11 @@ export const dictionary: Record<Locale, Dictionary> = {
       removeFile: "Remove file",
       conversionNotConnectedYet: "Upload/conversion backend is not connected yet.",
       chooseAnotherFile: "Choose another file",
+      uploaded: "Uploaded",
+      uploadSuccess: "Upload succeeded.",
+      uploadFailed: "Upload failed:",
+      serverValidationError: "Server validation error.",
+      uploadConnectedNotReady: "Upload succeeded, but the conversion backend is not connected yet.",
     },
     legal: {
       introHeading: "Overview",
@@ -213,6 +228,11 @@ export const dictionary: Record<Locale, Dictionary> = {
       removeFile: "ファイルを削除",
       conversionNotConnectedYet: "アップロード/変換バックエンドはまだ未接続です。",
       chooseAnotherFile: "別のファイルを選択",
+      uploaded: "アップロード済み",
+      uploadSuccess: "アップロードに成功しました。",
+      uploadFailed: "アップロードに失敗しました:",
+      serverValidationError: "サーバー検証エラーが発生しました。",
+      uploadConnectedNotReady: "アップロードは成功しましたが、変換バックエンドはまだ未接続です。",
     },
     legal: {
       introHeading: "概要",
@@ -277,6 +297,11 @@ export const dictionary: Record<Locale, Dictionary> = {
       removeFile: "Eliminar archivo",
       conversionNotConnectedYet: "El backend de carga/conversión aún no está conectado.",
       chooseAnotherFile: "Elegir otro archivo",
+      uploaded: "Subido",
+      uploadSuccess: "La carga se completó correctamente.",
+      uploadFailed: "Error de carga:",
+      serverValidationError: "Error de validación del servidor.",
+      uploadConnectedNotReady: "La carga se completó, pero el backend de conversión aún no está conectado.",
     },
     legal: {
       introHeading: "Resumen",
@@ -341,6 +366,11 @@ export const dictionary: Record<Locale, Dictionary> = {
       removeFile: "Datei entfernen",
       conversionNotConnectedYet: "Upload-/Konvertierungs-Backend ist noch nicht verbunden.",
       chooseAnotherFile: "Andere Datei wählen",
+      uploaded: "Hochgeladen",
+      uploadSuccess: "Upload erfolgreich.",
+      uploadFailed: "Upload fehlgeschlagen:",
+      serverValidationError: "Server-Validierungsfehler.",
+      uploadConnectedNotReady: "Der Upload war erfolgreich, aber das Konvertierungs-Backend ist noch nicht verbunden.",
     },
     legal: {
       introHeading: "Überblick",
