@@ -15,6 +15,7 @@ const JPG_QUALITY = 0.9;
 
 type PdfJsWorkerResolution = {
   workerPath: string;
+  checkedWorkerPaths: string[];
 };
 
 let pdfjsWorkerResolution: PdfJsWorkerResolution | null = null;
@@ -30,24 +31,50 @@ function ensurePdfJsWorkerConfigured() {
     throw new Error("Unable to resolve application root from process.cwd().");
   }
 
-  const workerPath = join(
-    appRoot,
-    "node_modules",
-    "pdfjs-dist",
-    "legacy",
-    "build",
-    "pdf.worker.mjs",
+  const checkedWorkerPaths = [
+    join(
+      appRoot,
+      "node_modules",
+      "pdfjs-dist",
+      "legacy",
+      "build",
+      "pdf.worker.mjs",
+    ),
+    join(
+      appRoot,
+      "node_modules",
+      "pdfjs-dist",
+      "legacy",
+      "build",
+      "pdf.worker.min.mjs",
+    ),
+    join(appRoot, "node_modules", "pdfjs-dist", "build", "pdf.worker.mjs"),
+    join(
+      appRoot,
+      "node_modules",
+      "pdfjs-dist",
+      "build",
+      "pdf.worker.min.mjs",
+    ),
+  ];
+
+  const workerPath = checkedWorkerPaths.find((candidatePath) =>
+    existsSync(candidatePath),
   );
 
-  if (!existsSync(workerPath)) {
+  if (!workerPath) {
+    console.error("PDF.js worker resolution failed", {
+      checkedWorkerPaths,
+      appRoot,
+    });
     throw new Error(
-      `PDF.js worker file was not found at expected path: ${workerPath}.`,
+      `PDF.js worker file was not found. Checked paths: ${checkedWorkerPaths.join(", ")}.`,
     );
   }
 
   GlobalWorkerOptions.workerSrc = workerPath;
 
-  pdfjsWorkerResolution = { workerPath };
+  pdfjsWorkerResolution = { workerPath, checkedWorkerPaths };
 
   return pdfjsWorkerResolution;
 }
