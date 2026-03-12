@@ -16,6 +16,46 @@ type ConvertRequestBody = {
   filename?: string;
 };
 
+class PrivateBlobLoadError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "PrivateBlobLoadError";
+  }
+}
+
+class PageLimitExceededError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "PageLimitExceededError";
+  }
+}
+
+async function readPrivateBlob(pathname: string, token: string) {
+  try {
+    const metadata = await head(pathname, { token });
+    const response = await fetch(metadata.url, {
+      cache: "no-store",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new PrivateBlobLoadError(
+        `Storage request failed with status ${response.status}.`,
+      );
+    }
+
+    return Buffer.from(await response.arrayBuffer());
+  } catch (error) {
+    if (error instanceof PrivateBlobLoadError) {
+      throw error;
+    }
+
+    throw new PrivateBlobLoadError("Failed to load uploaded PDF from private blob storage.");
+  }
+}
+
 function createConvertJobId() {
   return `convert_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
@@ -74,14 +114,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "jobId, pathname, and filename are required." }, { status: 400 });
     }
 
-    const metadata = await head(pathname, { token });
-    const pdfResponse = await fetch(metadata.downloadUrl, { cache: "no-store" });
-
-    if (!pdfResponse.ok) {
-      return NextResponse.json({ ok: false, error: "Failed to download uploaded PDF from storage." }, { status: 500 });
-    }
-
-    const pdfBuffer = Buffer.from(await pdfResponse.arrayBuffer());
+    const pdfBuffer = await readPrivateBlob(pathname, token);
     const pageCount = getPdfPageCount(pdfBuffer);
 
     if (pageCount <= 0) {
@@ -89,12 +122,8 @@ export async function POST(request: Request) {
     }
 
     if (pageCount > MAX_FREE_PLAN_PAGES) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: `Free plan allows up to ${MAX_FREE_PLAN_PAGES} pages. This PDF has ${pageCount} pages.`,
-        },
-        { status: 400 },
+      throw new PageLimitExceededError(
+        `Free plan allows up to ${MAX_FREE_PLAN_PAGES} pages. This PDF has ${pageCount} pages.`,
       );
     }
 
@@ -145,12 +174,39 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Convert route failed", error);
+    if (error instanceof PrivateBlobLoadError) {
+      console.error("Failed to load source PDF from private blob", {
+        message: error.message,
+      });
+
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Failed to load uploaded PDF from private storage.",
+        },
+        { status: 500 },
+      );
+    }
+
+    if (error instanceof PageLimitExceededError) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: error.message,
+        },
+        { status: 400 },
+      );
+    }
+
+    console.error("PDF conversion failed", error);
 
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : "Conversion failed.",
+        error:
+          error instanceof Error
+            ? `Conversion failed: ${error.message}`
+            : "Conversion failed due to an unexpected server error.",
       },
       { status: 500 },
     );
