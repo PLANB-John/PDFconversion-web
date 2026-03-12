@@ -3,8 +3,7 @@ import { head, put } from "@vercel/blob";
 import JSZip from "jszip";
 import { createCanvas, type Canvas } from "@napi-rs/canvas";
 import { randomUUID } from "node:crypto";
-import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { existsSync } from "node:fs";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf.mjs";
 
@@ -13,26 +12,45 @@ export const runtime = "nodejs";
 const MAX_FREE_PLAN_PAGES = 20;
 const JPG_DPI = 150;
 const JPG_QUALITY = 0.9;
-const NODE_REQUIRE = createRequire(import.meta.url);
 
-function resolvePdfJsWorkerPath() {
-  const pdfjsEntryPath = NODE_REQUIRE.resolve("pdfjs-dist/legacy/build/pdf.mjs");
-  const workerPath = join(dirname(pdfjsEntryPath), "pdf.worker.mjs");
+type PdfJsWorkerResolution = {
+  workerPath: string;
+};
+
+let pdfjsWorkerResolution: PdfJsWorkerResolution | null = null;
+
+function ensurePdfJsWorkerConfigured() {
+  if (pdfjsWorkerResolution) {
+    return pdfjsWorkerResolution;
+  }
+
+  const appRoot = process.cwd();
+
+  if (typeof appRoot !== "string" || appRoot.length === 0) {
+    throw new Error("Unable to resolve application root from process.cwd().");
+  }
+
+  const workerPath = join(
+    appRoot,
+    "node_modules",
+    "pdfjs-dist",
+    "legacy",
+    "build",
+    "pdf.worker.mjs",
+  );
 
   if (!existsSync(workerPath)) {
     throw new Error(
-      `Resolved PDF.js worker path does not exist: ${workerPath} (from ${pdfjsEntryPath}).`,
+      `PDF.js worker file was not found at expected path: ${workerPath}.`,
     );
   }
 
-  return {
-    pdfjsEntryPath,
-    workerPath,
-  };
-}
+  GlobalWorkerOptions.workerSrc = workerPath;
 
-const pdfjsWorkerResolution = resolvePdfJsWorkerPath();
-GlobalWorkerOptions.workerSrc = pdfjsWorkerResolution.workerPath;
+  pdfjsWorkerResolution = { workerPath };
+
+  return pdfjsWorkerResolution;
+}
 
 type ConvertRequestBody = {
   jobId?: string;
@@ -105,6 +123,8 @@ async function encodeCanvasToJpgBuffer(canvas: Canvas) {
 }
 
 async function renderPdfToJpgBuffers(pdfBuffer: Buffer) {
+  const workerResolution = ensurePdfJsWorkerConfigured();
+
   // This API route executes in Node.js and points PDF.js to the real worker file
   // within the installed package to avoid route-relative fallback resolution.
   const loadingTask = getDocument({
@@ -121,10 +141,9 @@ async function renderPdfToJpgBuffers(pdfBuffer: Buffer) {
       message: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,
       pdfBufferBytes: pdfBuffer.byteLength,
-      pdfjsEntryPath: pdfjsWorkerResolution.pdfjsEntryPath,
       configuredWorkerSrc: GlobalWorkerOptions.workerSrc,
-      resolvedWorkerPath: pdfjsWorkerResolution.workerPath,
-      resolvedWorkerExists: existsSync(pdfjsWorkerResolution.workerPath),
+      resolvedWorkerPath: workerResolution.workerPath,
+      resolvedWorkerExists: existsSync(workerResolution.workerPath),
     });
     throw error;
   }
