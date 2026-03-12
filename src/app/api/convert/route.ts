@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { head, put } from "@vercel/blob";
 import JSZip from "jszip";
-import { createCanvas } from "@napi-rs/canvas";
+import { createCanvas, type Canvas } from "@napi-rs/canvas";
 import { randomUUID } from "node:crypto";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf.mjs";
 
@@ -73,10 +73,7 @@ type RenderedJpg = {
   buffer: Buffer;
 };
 
-async function encodeCanvasToJpgBuffer(canvas: {
-  encode?: (mimeType: string, options?: Record<string, unknown>) => Promise<Uint8Array>;
-  toBuffer?: (mimeType?: string, config?: Record<string, unknown>) => Buffer;
-}) {
+async function encodeCanvasToJpgBuffer(canvas: Canvas) {
   if (typeof canvas.encode === "function") {
     const encoded = await canvas.encode("jpeg", { quality: JPG_QUALITY * 100 });
     return Buffer.from(encoded);
