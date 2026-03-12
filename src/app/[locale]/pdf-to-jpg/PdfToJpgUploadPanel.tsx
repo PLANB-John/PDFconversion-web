@@ -25,17 +25,29 @@ type PdfToJpgCopy = {
   uploadStoredSuccessfully: string;
   storedFile: string;
   storageUploadComplete: string;
+  uploadJob: string;
+  jobId: string;
+  storedPathname: string;
+  uploadedTime: string;
 };
 
 type PdfToJpgUploadPanelProps = {
   t: PdfToJpgCopy;
 };
 
+type UploadJob = {
+  id: string;
+  filename: string;
+  size: number;
+  pathname: string;
+  uploadedAt: string;
+};
+
 type UploadResponse = {
   ok?: boolean;
   error?: string;
-  filename?: string;
   message?: string;
+  job?: UploadJob;
 };
 
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
@@ -67,13 +79,13 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStage, setCurrentStage] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string>("");
-  const [storedFilename, setStoredFilename] = useState<string>("");
+  const [uploadedJob, setUploadedJob] = useState<UploadJob | null>(null);
 
   const resetProgress = () => {
     setIsProcessing(false);
     setCurrentStage(null);
     setStatusMessage("");
-    setStoredFilename("");
+    setUploadedJob(null);
   };
 
   const clearSelection = () => {
@@ -96,7 +108,7 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
 
     setError("");
     setStatusMessage("");
-    setStoredFilename("");
+    setUploadedJob(null);
     setIsProcessing(true);
 
     try {
@@ -118,17 +130,18 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
         throw new Error(payload?.error ?? t.serverValidationError);
       }
 
-      const uploadedFilename = payload.filename ?? selectedFile.name;
+      if (!payload.job) {
+        throw new Error(t.serverValidationError);
+      }
+
       setCurrentStage(t.uploaded);
-      setStoredFilename(uploadedFilename);
-      setStatusMessage(
-        `${t.uploadStoredSuccessfully} ${t.storageUploadComplete} ${t.uploadConnectedNotReady}`,
-      );
+      setUploadedJob(payload.job);
+      setStatusMessage(payload.message ?? `${t.uploadStoredSuccessfully} ${t.storageUploadComplete} ${t.uploadConnectedNotReady}`);
     } catch (uploadError) {
       const message = uploadError instanceof Error ? uploadError.message : t.serverValidationError;
       setError(`${t.uploadFailed} ${message}`);
       setCurrentStage(null);
-      setStoredFilename("");
+      setUploadedJob(null);
     } finally {
       setIsProcessing(false);
     }
@@ -225,10 +238,25 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
         {currentStage ? (
           <p className="mt-2 text-center text-sm font-medium text-slate-700">{currentStage}</p>
         ) : null}
-        {storedFilename ? (
-          <p className="mt-2 text-center text-sm font-medium text-emerald-700">
-            {t.storedFile}: {storedFilename}
-          </p>
+        {uploadedJob ? (
+          <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-left text-sm text-emerald-900">
+            <p className="font-semibold">{t.uploadJob}</p>
+            <p className="mt-1">
+              {t.jobId}: {uploadedJob.id}
+            </p>
+            <p>
+              {t.selectedFile}: {uploadedJob.filename}
+            </p>
+            <p>
+              {t.fileSize}: {formatFileSize(uploadedJob.size)}
+            </p>
+            <p>
+              {t.storedPathname}: {uploadedJob.pathname}
+            </p>
+            <p>
+              {t.uploadedTime}: {new Date(uploadedJob.uploadedAt).toLocaleString()}
+            </p>
+          </div>
         ) : null}
         <p className="mt-2 text-center text-sm text-slate-600">
           {statusMessage || t.conversionNotConnectedYet}

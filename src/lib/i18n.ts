@@ -48,6 +48,10 @@ type Dictionary = {
     uploadStoredSuccessfully: string;
     storedFile: string;
     storageUploadComplete: string;
+    uploadJob: string;
+    jobId: string;
+    storedPathname: string;
+    uploadedTime: string;
   };
   legal: {
     introHeading: string;
@@ -113,6 +117,10 @@ export const dictionary: Record<Locale, Dictionary> = {
       uploadStoredSuccessfully: "업로드 파일이 저장되었습니다.",
       storedFile: "저장된 파일",
       storageUploadComplete: "스토리지 업로드가 완료되었습니다.",
+      uploadJob: "업로드 작업",
+      jobId: "작업 ID",
+      storedPathname: "저장 경로",
+      uploadedTime: "업로드 시간",
     },
     legal: {
       introHeading: "개요",
@@ -178,6 +186,10 @@ export const dictionary: Record<Locale, Dictionary> = {
       uploadStoredSuccessfully: "Upload stored successfully.",
       storedFile: "Stored file",
       storageUploadComplete: "Storage upload complete.",
+      uploadJob: "Upload job",
+      jobId: "Job ID",
+      storedPathname: "Stored pathname",
+      uploadedTime: "Uploaded time",
     },
     legal: {
       introHeading: "Overview",
@@ -245,6 +257,10 @@ export const dictionary: Record<Locale, Dictionary> = {
       uploadStoredSuccessfully: "アップロードがストレージに保存されました。",
       storedFile: "保存されたファイル",
       storageUploadComplete: "ストレージへのアップロードが完了しました。",
+      uploadJob: "アップロードジョブ",
+      jobId: "ジョブID",
+      storedPathname: "保存パス",
+      uploadedTime: "アップロード時刻",
     },
     legal: {
       introHeading: "概要",
@@ -317,6 +333,10 @@ export const dictionary: Record<Locale, Dictionary> = {
       uploadStoredSuccessfully: "La carga se almacenó correctamente.",
       storedFile: "Archivo almacenado",
       storageUploadComplete: "La carga al almacenamiento se completó.",
+      uploadJob: "Trabajo de carga",
+      jobId: "ID del trabajo",
+      storedPathname: "Ruta almacenada",
+      uploadedTime: "Hora de carga",
     },
     legal: {
       introHeading: "Resumen",
@@ -389,6 +409,10 @@ export const dictionary: Record<Locale, Dictionary> = {
       uploadStoredSuccessfully: "Upload wurde erfolgreich gespeichert.",
       storedFile: "Gespeicherte Datei",
       storageUploadComplete: "Storage-Upload abgeschlossen.",
+      uploadJob: "Upload-Job",
+      jobId: "Job-ID",
+      storedPathname: "Gespeicherter Pfad",
+      uploadedTime: "Upload-Zeit",
     },
     legal: {
       introHeading: "Überblick",
