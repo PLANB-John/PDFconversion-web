@@ -118,9 +118,12 @@ async function renderPdfToJpgBuffers(pdfBuffer: Buffer) {
 
       const canvas = createCanvas(Math.ceil(viewport.width), Math.ceil(viewport.height));
       const context = canvas.getContext("2d");
+      // Server-side compatibility cast: pdfjs-dist expects a DOM-like 2D context type,
+      // while @napi-rs/canvas provides SKRSContext2D with runtime-compatible methods.
+      const pdfjsCanvasContext = context as unknown as CanvasRenderingContext2D;
 
       await page.render({
-        canvasContext: context,
+        canvasContext: pdfjsCanvasContext,
         viewport,
       }).promise;
 
