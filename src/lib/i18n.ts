@@ -45,6 +45,9 @@ type Dictionary = {
     uploadFailed: string;
     serverValidationError: string;
     uploadConnectedNotReady: string;
+    uploadStoredSuccessfully: string;
+    storedFile: string;
+    storageUploadComplete: string;
   };
   legal: {
     introHeading: string;
@@ -107,6 +110,9 @@ export const dictionary: Record<Locale, Dictionary> = {
       uploadFailed: "업로드 실패:",
       serverValidationError: "서버 검증 오류가 발생했습니다.",
       uploadConnectedNotReady: "업로드는 성공했지만 변환 백엔드는 아직 연결되지 않았습니다.",
+      uploadStoredSuccessfully: "업로드 파일이 저장되었습니다.",
+      storedFile: "저장된 파일",
+      storageUploadComplete: "스토리지 업로드가 완료되었습니다.",
     },
     legal: {
       introHeading: "개요",
@@ -169,6 +175,9 @@ export const dictionary: Record<Locale, Dictionary> = {
       uploadFailed: "Upload failed:",
       serverValidationError: "Server validation error.",
       uploadConnectedNotReady: "Upload succeeded, but the conversion backend is not connected yet.",
+      uploadStoredSuccessfully: "Upload stored successfully.",
+      storedFile: "Stored file",
+      storageUploadComplete: "Storage upload complete.",
     },
     legal: {
       introHeading: "Overview",
@@ -233,6 +242,9 @@ export const dictionary: Record<Locale, Dictionary> = {
       uploadFailed: "アップロードに失敗しました:",
       serverValidationError: "サーバー検証エラーが発生しました。",
       uploadConnectedNotReady: "アップロードは成功しましたが、変換バックエンドはまだ未接続です。",
+      uploadStoredSuccessfully: "アップロードがストレージに保存されました。",
+      storedFile: "保存されたファイル",
+      storageUploadComplete: "ストレージへのアップロードが完了しました。",
     },
     legal: {
       introHeading: "概要",
@@ -302,6 +314,9 @@ export const dictionary: Record<Locale, Dictionary> = {
       uploadFailed: "Error de carga:",
       serverValidationError: "Error de validación del servidor.",
       uploadConnectedNotReady: "La carga se completó, pero el backend de conversión aún no está conectado.",
+      uploadStoredSuccessfully: "La carga se almacenó correctamente.",
+      storedFile: "Archivo almacenado",
+      storageUploadComplete: "La carga al almacenamiento se completó.",
     },
     legal: {
       introHeading: "Resumen",
@@ -371,6 +386,9 @@ export const dictionary: Record<Locale, Dictionary> = {
       uploadFailed: "Upload fehlgeschlagen:",
       serverValidationError: "Server-Validierungsfehler.",
       uploadConnectedNotReady: "Der Upload war erfolgreich, aber das Konvertierungs-Backend ist noch nicht verbunden.",
+      uploadStoredSuccessfully: "Upload wurde erfolgreich gespeichert.",
+      storedFile: "Gespeicherte Datei",
+      storageUploadComplete: "Storage-Upload abgeschlossen.",
     },
     legal: {
       introHeading: "Überblick",

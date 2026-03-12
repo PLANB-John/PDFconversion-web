@@ -22,10 +22,20 @@ type PdfToJpgCopy = {
   uploadFailed: string;
   serverValidationError: string;
   uploadConnectedNotReady: string;
+  uploadStoredSuccessfully: string;
+  storedFile: string;
+  storageUploadComplete: string;
 };
 
 type PdfToJpgUploadPanelProps = {
   t: PdfToJpgCopy;
+};
+
+type UploadResponse = {
+  ok?: boolean;
+  error?: string;
+  filename?: string;
+  message?: string;
 };
 
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
@@ -57,11 +67,13 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStage, setCurrentStage] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string>("");
+  const [storedFilename, setStoredFilename] = useState<string>("");
 
   const resetProgress = () => {
     setIsProcessing(false);
     setCurrentStage(null);
     setStatusMessage("");
+    setStoredFilename("");
   };
 
   const clearSelection = () => {
@@ -84,6 +96,7 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
 
     setError("");
     setStatusMessage("");
+    setStoredFilename("");
     setIsProcessing(true);
 
     try {
@@ -99,20 +112,23 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
         body: formData,
       });
 
-      const payload = (await response.json().catch(() => null)) as
-        | { ok?: boolean; error?: string }
-        | null;
+      const payload = (await response.json().catch(() => null)) as UploadResponse | null;
 
       if (!response.ok || !payload?.ok) {
         throw new Error(payload?.error ?? t.serverValidationError);
       }
 
+      const uploadedFilename = payload.filename ?? selectedFile.name;
       setCurrentStage(t.uploaded);
-      setStatusMessage(`${t.uploadSuccess} ${t.uploadConnectedNotReady}`);
+      setStoredFilename(uploadedFilename);
+      setStatusMessage(
+        `${t.uploadStoredSuccessfully} ${t.storageUploadComplete} ${t.uploadConnectedNotReady}`,
+      );
     } catch (uploadError) {
       const message = uploadError instanceof Error ? uploadError.message : t.serverValidationError;
       setError(`${t.uploadFailed} ${message}`);
       setCurrentStage(null);
+      setStoredFilename("");
     } finally {
       setIsProcessing(false);
     }
@@ -208,6 +224,11 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
         </button>
         {currentStage ? (
           <p className="mt-2 text-center text-sm font-medium text-slate-700">{currentStage}</p>
+        ) : null}
+        {storedFilename ? (
+          <p className="mt-2 text-center text-sm font-medium text-emerald-700">
+            {t.storedFile}: {storedFilename}
+          </p>
         ) : null}
         <p className="mt-2 text-center text-sm text-slate-600">
           {statusMessage || t.conversionNotConnectedYet}
