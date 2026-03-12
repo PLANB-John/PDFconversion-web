@@ -82,9 +82,10 @@ async function encodeCanvasToJpgBuffer(canvas: Canvas) {
 }
 
 async function renderPdfToJpgBuffers(pdfBuffer: Buffer) {
+  // This API route executes in the Node.js runtime only, so browser worker asset
+  // configuration is intentionally not used in this server-side conversion path.
   const loadingTask = getDocument({
     data: new Uint8Array(pdfBuffer),
-    disableWorker: true,
     useSystemFonts: true,
     isEvalSupported: false,
   });
