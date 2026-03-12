@@ -29,6 +29,15 @@ type PdfToJpgCopy = {
   jobId: string;
   storedPathname: string;
   uploadedTime: string;
+  convertingPages: string;
+  pageCount: string;
+  freePlanAllowsUpTo20Pages: string;
+  conversionComplete: string;
+  conversionFailed: string;
+  resultZip: string;
+  resultReady: string;
+  convertJob: string;
+  completedTime: string;
 };
 
 type PdfToJpgUploadPanelProps = {
@@ -43,6 +52,16 @@ type UploadJob = {
   uploadedAt: string;
 };
 
+type ConvertJob = {
+  id: string;
+  sourceJobId: string;
+  sourcePathname: string;
+  filename: string;
+  pageCount: number;
+  zipPathname: string;
+  completedAt: string;
+};
+
 type UploadResponse = {
   ok?: boolean;
   error?: string;
@@ -50,9 +69,14 @@ type UploadResponse = {
   job?: UploadJob;
 };
 
+type ConvertResponse = {
+  ok?: boolean;
+  error?: string;
+  message?: string;
+  convertJob?: ConvertJob;
+};
+
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
-const PREPARING_STAGE = "Preparing";
-const UPLOADING_STAGE = "Uploading";
 
 function formatFileSize(bytes: number) {
   if (bytes < 1024) {
@@ -76,16 +100,20 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   const inputId = useId();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string>("");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isConverting, setIsConverting] = useState(false);
   const [currentStage, setCurrentStage] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [uploadedJob, setUploadedJob] = useState<UploadJob | null>(null);
+  const [convertJob, setConvertJob] = useState<ConvertJob | null>(null);
 
   const resetProgress = () => {
-    setIsProcessing(false);
+    setIsUploading(false);
+    setIsConverting(false);
     setCurrentStage(null);
     setStatusMessage("");
     setUploadedJob(null);
+    setConvertJob(null);
   };
 
   const clearSelection = () => {
@@ -101,23 +129,22 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
     clearSelection();
   };
 
-  const handleConvert = async () => {
-    if (!selectedFile || Boolean(error) || isProcessing) {
+  const handleUpload = async () => {
+    if (!selectedFile || Boolean(error) || isUploading || isConverting) {
       return;
     }
 
     setError("");
     setStatusMessage("");
     setUploadedJob(null);
-    setIsProcessing(true);
+    setConvertJob(null);
+    setIsUploading(true);
 
     try {
-      setCurrentStage(PREPARING_STAGE);
+      setCurrentStage("Uploading");
 
       const formData = new FormData();
       formData.append("file", selectedFile);
-
-      setCurrentStage(UPLOADING_STAGE);
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -136,14 +163,57 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
 
       setCurrentStage(t.uploaded);
       setUploadedJob(payload.job);
-      setStatusMessage(payload.message ?? `${t.uploadStoredSuccessfully} ${t.storageUploadComplete} ${t.uploadConnectedNotReady}`);
+      setStatusMessage(payload.message ?? `${t.uploadStoredSuccessfully} ${t.storageUploadComplete}`);
     } catch (uploadError) {
       const message = uploadError instanceof Error ? uploadError.message : t.serverValidationError;
       setError(`${t.uploadFailed} ${message}`);
       setCurrentStage(null);
       setUploadedJob(null);
     } finally {
-      setIsProcessing(false);
+      setIsUploading(false);
+    }
+  };
+
+  const handleConvert = async () => {
+    if (!uploadedJob || isUploading || isConverting) {
+      return;
+    }
+
+    setError("");
+    setIsConverting(true);
+    setCurrentStage(t.convertingPages);
+    setStatusMessage(t.convertingPages);
+    setConvertJob(null);
+
+    try {
+      const response = await fetch("/api/convert", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jobId: uploadedJob.id,
+          pathname: uploadedJob.pathname,
+          filename: uploadedJob.filename,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as ConvertResponse | null;
+
+      if (!response.ok || !payload?.ok || !payload.convertJob) {
+        throw new Error(payload?.error ?? t.conversionFailed);
+      }
+
+      setConvertJob(payload.convertJob);
+      setCurrentStage(t.conversionComplete);
+      setStatusMessage(payload.message ?? t.resultReady);
+    } catch (convertError) {
+      const message = convertError instanceof Error ? convertError.message : t.conversionFailed;
+      setError(`${t.conversionFailed}: ${message}`);
+      setCurrentStage(null);
+      setConvertJob(null);
+    } finally {
+      setIsConverting(false);
     }
   };
 
@@ -172,7 +242,8 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
     setError("");
   };
 
-  const isConvertDisabled = !selectedFile || Boolean(error) || isProcessing;
+  const isUploadDisabled = !selectedFile || Boolean(error) || isUploading || isConverting;
+  const isConvertDisabled = !uploadedJob || isUploading || isConverting;
 
   return (
     <div className="rounded-2xl border border-slate-300 bg-white p-8 shadow-sm">
@@ -220,9 +291,23 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
         <p>{t.supportedFormat}</p>
         <p>{t.limits}</p>
         <p>{t.freePlanNote}</p>
+        <p>{t.freePlanAllowsUpTo20Pages}</p>
       </div>
 
-      <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+      <div className="mt-6 space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <button
+          type="button"
+          onClick={handleUpload}
+          disabled={isUploadDisabled}
+          className={`w-full rounded-md px-5 py-2.5 text-sm font-semibold transition ${
+            isUploadDisabled
+              ? "pointer-events-none cursor-not-allowed bg-slate-300 text-slate-600"
+              : "cursor-pointer bg-slate-900 text-white hover:bg-slate-800"
+          }`}
+        >
+          {t.uploadTitle}
+        </button>
+
         <button
           type="button"
           onClick={handleConvert}
@@ -230,16 +315,16 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
           className={`w-full rounded-md px-5 py-2.5 text-sm font-semibold transition ${
             isConvertDisabled
               ? "pointer-events-none cursor-not-allowed bg-slate-300 text-slate-600"
-              : "cursor-pointer bg-slate-900 text-white hover:bg-slate-800"
+              : "cursor-pointer bg-emerald-700 text-white hover:bg-emerald-600"
           }`}
         >
-          Convert
+          Convert to JPG ZIP
         </button>
-        {currentStage ? (
-          <p className="mt-2 text-center text-sm font-medium text-slate-700">{currentStage}</p>
-        ) : null}
+
+        {currentStage ? <p className="text-center text-sm font-medium text-slate-700">{currentStage}</p> : null}
+
         {uploadedJob ? (
-          <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-left text-sm text-emerald-900">
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-left text-sm text-emerald-900">
             <p className="font-semibold">{t.uploadJob}</p>
             <p className="mt-1">
               {t.jobId}: {uploadedJob.id}
@@ -258,9 +343,26 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
             </p>
           </div>
         ) : null}
-        <p className="mt-2 text-center text-sm text-slate-600">
-          {statusMessage || t.conversionNotConnectedYet}
-        </p>
+
+        {convertJob ? (
+          <div className="rounded-lg border border-sky-200 bg-sky-50 p-3 text-left text-sm text-sky-900">
+            <p className="font-semibold">{t.convertJob}</p>
+            <p className="mt-1">
+              {t.jobId}: {convertJob.id}
+            </p>
+            <p>
+              {t.pageCount}: {convertJob.pageCount}
+            </p>
+            <p>
+              {t.resultZip}: {convertJob.zipPathname}
+            </p>
+            <p>
+              {t.completedTime}: {new Date(convertJob.completedAt).toLocaleString()}
+            </p>
+          </div>
+        ) : null}
+
+        <p className="text-center text-sm text-slate-600">{statusMessage || t.conversionNotConnectedYet}</p>
       </div>
     </div>
   );

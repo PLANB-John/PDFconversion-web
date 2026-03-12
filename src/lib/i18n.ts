@@ -52,6 +52,15 @@ type Dictionary = {
     jobId: string;
     storedPathname: string;
     uploadedTime: string;
+    convertingPages: string;
+    pageCount: string;
+    freePlanAllowsUpTo20Pages: string;
+    conversionComplete: string;
+    conversionFailed: string;
+    resultZip: string;
+    resultReady: string;
+    convertJob: string;
+    completedTime: string;
   };
   legal: {
     introHeading: string;
@@ -121,6 +130,15 @@ export const dictionary: Record<Locale, Dictionary> = {
       jobId: "작업 ID",
       storedPathname: "저장 경로",
       uploadedTime: "업로드 시간",
+      convertingPages: "페이지를 JPG로 변환하는 중...",
+      pageCount: "페이지 수",
+      freePlanAllowsUpTo20Pages: "무료 플랜은 최대 20페이지까지 허용됩니다.",
+      conversionComplete: "변환 완료",
+      conversionFailed: "변환 실패",
+      resultZip: "결과 ZIP",
+      resultReady: "결과 ZIP 파일이 준비되었습니다.",
+      convertJob: "변환 작업",
+      completedTime: "완료 시간",
     },
     legal: {
       introHeading: "개요",
@@ -190,6 +208,15 @@ export const dictionary: Record<Locale, Dictionary> = {
       jobId: "Job ID",
       storedPathname: "Stored pathname",
       uploadedTime: "Uploaded time",
+      convertingPages: "Converting pages to JPG...",
+      pageCount: "Page count",
+      freePlanAllowsUpTo20Pages: "Free plan allows up to 20 pages.",
+      conversionComplete: "Conversion complete",
+      conversionFailed: "Conversion failed",
+      resultZip: "Result ZIP",
+      resultReady: "Result ZIP is ready.",
+      convertJob: "Convert job",
+      completedTime: "Completed time",
     },
     legal: {
       introHeading: "Overview",
@@ -261,6 +288,15 @@ export const dictionary: Record<Locale, Dictionary> = {
       jobId: "ジョブID",
       storedPathname: "保存パス",
       uploadedTime: "アップロード時刻",
+      convertingPages: "ページをJPGに変換中...",
+      pageCount: "ページ数",
+      freePlanAllowsUpTo20Pages: "無料プランでは最大20ページまで変換できます。",
+      conversionComplete: "変換完了",
+      conversionFailed: "変換に失敗しました",
+      resultZip: "結果ZIP",
+      resultReady: "結果のZIPファイルが準備できました。",
+      convertJob: "変換ジョブ",
+      completedTime: "完了時刻",
     },
     legal: {
       introHeading: "概要",
@@ -337,6 +373,15 @@ export const dictionary: Record<Locale, Dictionary> = {
       jobId: "ID del trabajo",
       storedPathname: "Ruta almacenada",
       uploadedTime: "Hora de carga",
+      convertingPages: "Convirtiendo páginas a JPG...",
+      pageCount: "Cantidad de páginas",
+      freePlanAllowsUpTo20Pages: "El plan gratuito permite hasta 20 páginas.",
+      conversionComplete: "Conversión completa",
+      conversionFailed: "La conversión falló",
+      resultZip: "ZIP resultante",
+      resultReady: "El ZIP de resultados está listo.",
+      convertJob: "Trabajo de conversión",
+      completedTime: "Hora de finalización",
     },
     legal: {
       introHeading: "Resumen",
@@ -413,6 +458,15 @@ export const dictionary: Record<Locale, Dictionary> = {
       jobId: "Job-ID",
       storedPathname: "Gespeicherter Pfad",
       uploadedTime: "Upload-Zeit",
+      convertingPages: "Seiten werden in JPG konvertiert...",
+      pageCount: "Seitenanzahl",
+      freePlanAllowsUpTo20Pages: "Im Free-Plan sind bis zu 20 Seiten erlaubt.",
+      conversionComplete: "Konvertierung abgeschlossen",
+      conversionFailed: "Konvertierung fehlgeschlagen",
+      resultZip: "Ergebnis-ZIP",
+      resultReady: "Die Ergebnis-ZIP ist bereit.",
+      convertJob: "Konvertierungsjob",
+      completedTime: "Abschlusszeit",
     },
     legal: {
       introHeading: "Überblick",
