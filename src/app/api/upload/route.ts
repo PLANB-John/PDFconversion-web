@@ -1,19 +1,52 @@
 import { NextResponse } from "next/server";
 
-const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
-const BLOB_API_ENDPOINT = "https://blob.vercel-storage.com";
+type BlobPut = (
+  pathname: string,
+  body: File,
+  options: {
+    access: "private";
+    addRandomSuffix: false;
+    contentType: string;
+    token: string;
+  },
+) => Promise<{ pathname: string; url?: string }>;
 
-type BlobUploadResponse = {
-  pathname?: string;
-  url?: string;
-};
+async function loadBlobPut(): Promise<BlobPut> {
+  try {
+    const dynamicImport = new Function(
+      "moduleName",
+      "return import(moduleName)",
+    ) as (moduleName: string) => Promise<{ put?: BlobPut }>;
+
+    const blobModule = await dynamicImport("@vercel/blob");
+
+    if (typeof blobModule.put !== "function") {
+      throw new Error("@vercel/blob did not expose put().");
+    }
+
+    return blobModule.put;
+  } catch (error) {
+    throw new Error(
+      error instanceof Error
+        ? `@vercel/blob is unavailable: ${error.message}`
+        : "@vercel/blob is unavailable.",
+    );
+  }
+}
+
+const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
 
 function buildUniqueUploadPath(originalFilename: string) {
   const timestamp = Date.now();
   const uuid = crypto.randomUUID();
-  const safeFilename = originalFilename.toLowerCase().replace(/[^a-z0-9.-]/g, "-");
+  const safeFilename = originalFilename
+    .toLowerCase()
+    .replace(/[^a-z0-9.-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+  const finalFilename = safeFilename || "upload.pdf";
 
-  return `uploads/pdf/${timestamp}-${uuid}-${safeFilename}`;
+  return `uploads/pdf/${timestamp}-${uuid}-${finalFilename}`;
 }
 
 export async function POST(request: Request) {
@@ -68,41 +101,45 @@ export async function POST(request: Request) {
 
     const pathname = buildUniqueUploadPath(file.name);
 
-    const blobResponse = await fetch(`${BLOB_API_ENDPOINT}/${pathname}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": file.type || "application/pdf",
-        "x-access": "private",
-      },
-      body: await file.arrayBuffer(),
-    });
+    try {
+      const put = await loadBlobPut();
 
-    if (!blobResponse.ok) {
+      const blob = await put(pathname, file, {
+        access: "private",
+        addRandomSuffix: false,
+        contentType: file.type || "application/pdf",
+        token,
+      });
+
+      return NextResponse.json({
+        ok: true,
+        filename: file.name,
+        size: file.size,
+        pathname: blob.pathname,
+        url: blob.url ?? null,
+        message: "Upload stored successfully. Conversion backend is not connected yet.",
+      });
+    } catch (blobError) {
+      console.error("Blob upload failed", blobError);
+
       return NextResponse.json(
         {
           ok: false,
-          error: "Failed to upload PDF to storage.",
+          error:
+            blobError instanceof Error
+              ? `Failed to upload PDF to storage: ${blobError.message}`
+              : "Failed to upload PDF to storage.",
         },
         { status: 500 },
       );
     }
+  } catch (error) {
+    console.error("Upload route failed", error);
 
-    const blob = (await blobResponse.json().catch(() => ({}))) as BlobUploadResponse;
-
-    return NextResponse.json({
-      ok: true,
-      filename: file.name,
-      size: file.size,
-      pathname: blob.pathname ?? pathname,
-      url: blob.url ?? null,
-      message: "Upload stored successfully. Conversion backend is not connected yet.",
-    });
-  } catch {
     return NextResponse.json(
       {
         ok: false,
-        error: "Server validation error.",
+        error: error instanceof Error ? error.message : "Server validation error.",
       },
       { status: 500 },
     );
