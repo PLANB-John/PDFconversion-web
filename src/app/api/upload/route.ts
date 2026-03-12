@@ -1,38 +1,5 @@
 import { NextResponse } from "next/server";
-
-type BlobPut = (
-  pathname: string,
-  body: File,
-  options: {
-    access: "private";
-    addRandomSuffix: false;
-    contentType: string;
-    token: string;
-  },
-) => Promise<{ pathname: string; url?: string }>;
-
-async function loadBlobPut(): Promise<BlobPut> {
-  try {
-    const dynamicImport = new Function(
-      "moduleName",
-      "return import(moduleName)",
-    ) as (moduleName: string) => Promise<{ put?: BlobPut }>;
-
-    const blobModule = await dynamicImport("@vercel/blob");
-
-    if (typeof blobModule.put !== "function") {
-      throw new Error("@vercel/blob did not expose put().");
-    }
-
-    return blobModule.put;
-  } catch (error) {
-    throw new Error(
-      error instanceof Error
-        ? `@vercel/blob is unavailable: ${error.message}`
-        : "@vercel/blob is unavailable.",
-    );
-  }
-}
+import { put } from "@vercel/blob";
 
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
 
@@ -102,8 +69,6 @@ export async function POST(request: Request) {
     const pathname = buildUniqueUploadPath(file.name);
 
     try {
-      const put = await loadBlobPut();
-
       const blob = await put(pathname, file, {
         access: "private",
         addRandomSuffix: false,
