@@ -3,18 +3,13 @@ import { head, put } from "@vercel/blob";
 import JSZip from "jszip";
 import { createCanvas, type Canvas } from "@napi-rs/canvas";
 import { randomUUID } from "node:crypto";
-import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf.mjs";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 
 export const runtime = "nodejs";
 
 const MAX_FREE_PLAN_PAGES = 20;
 const JPG_DPI = 150;
 const JPG_QUALITY = 0.9;
-
-GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/legacy/build/pdf.worker.mjs",
-  import.meta.url,
-).toString();
 
 type ConvertRequestBody = {
   jobId?: string;
@@ -89,11 +84,22 @@ async function encodeCanvasToJpgBuffer(canvas: Canvas) {
 async function renderPdfToJpgBuffers(pdfBuffer: Buffer) {
   const loadingTask = getDocument({
     data: new Uint8Array(pdfBuffer),
+    disableWorker: true,
     useSystemFonts: true,
     isEvalSupported: false,
   });
 
-  const pdfDocument = await loadingTask.promise;
+  let pdfDocument;
+  try {
+    pdfDocument = await loadingTask.promise;
+  } catch (error) {
+    console.error("Failed to initialize PDF.js document in Node runtime", {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      pdfBufferBytes: pdfBuffer.byteLength,
+    });
+    throw error;
+  }
 
   if (pdfDocument.numPages > MAX_FREE_PLAN_PAGES) {
     await pdfDocument.destroy();
