@@ -3,13 +3,36 @@ import { head, put } from "@vercel/blob";
 import JSZip from "jszip";
 import { createCanvas, type Canvas } from "@napi-rs/canvas";
 import { randomUUID } from "node:crypto";
-import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
+import { existsSync } from "node:fs";
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf.mjs";
 
 export const runtime = "nodejs";
 
 const MAX_FREE_PLAN_PAGES = 20;
 const JPG_DPI = 150;
 const JPG_QUALITY = 0.9;
+const NODE_REQUIRE = createRequire(import.meta.url);
+
+function resolvePdfJsWorkerPath() {
+  const pdfjsEntryPath = NODE_REQUIRE.resolve("pdfjs-dist/legacy/build/pdf.mjs");
+  const workerPath = join(dirname(pdfjsEntryPath), "pdf.worker.mjs");
+
+  if (!existsSync(workerPath)) {
+    throw new Error(
+      `Resolved PDF.js worker path does not exist: ${workerPath} (from ${pdfjsEntryPath}).`,
+    );
+  }
+
+  return {
+    pdfjsEntryPath,
+    workerPath,
+  };
+}
+
+const pdfjsWorkerResolution = resolvePdfJsWorkerPath();
+GlobalWorkerOptions.workerSrc = pdfjsWorkerResolution.workerPath;
 
 type ConvertRequestBody = {
   jobId?: string;
@@ -82,8 +105,8 @@ async function encodeCanvasToJpgBuffer(canvas: Canvas) {
 }
 
 async function renderPdfToJpgBuffers(pdfBuffer: Buffer) {
-  // This API route executes in the Node.js runtime only, so browser worker asset
-  // configuration is intentionally not used in this server-side conversion path.
+  // This API route executes in Node.js and points PDF.js to the real worker file
+  // within the installed package to avoid route-relative fallback resolution.
   const loadingTask = getDocument({
     data: new Uint8Array(pdfBuffer),
     useSystemFonts: true,
@@ -98,6 +121,10 @@ async function renderPdfToJpgBuffers(pdfBuffer: Buffer) {
       message: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,
       pdfBufferBytes: pdfBuffer.byteLength,
+      pdfjsEntryPath: pdfjsWorkerResolution.pdfjsEntryPath,
+      configuredWorkerSrc: GlobalWorkerOptions.workerSrc,
+      resolvedWorkerPath: pdfjsWorkerResolution.workerPath,
+      resolvedWorkerExists: existsSync(pdfjsWorkerResolution.workerPath),
     });
     throw error;
   }
