@@ -75,15 +75,12 @@ type RenderedJpg = {
 
 async function encodeCanvasToJpgBuffer(canvas: Canvas) {
   if (typeof canvas.encode === "function") {
-    const encoded = await canvas.encode("jpeg", { quality: JPG_QUALITY * 100 });
+    const encoded = await canvas.encode("jpeg", JPG_QUALITY * 100);
     return Buffer.from(encoded);
   }
 
   if (typeof canvas.toBuffer === "function") {
-    return canvas.toBuffer("image/jpeg", {
-      quality: JPG_QUALITY,
-      progressive: true,
-    });
+    return canvas.toBuffer("image/jpeg", JPG_QUALITY);
   }
 
   throw new Error("Canvas backend does not support JPEG encoding.");
