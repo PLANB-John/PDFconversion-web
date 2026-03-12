@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { head, put } from "@vercel/blob";
 import JSZip from "jszip";
-import { createCanvas } from "canvas";
+import { createCanvas } from "@napi-rs/canvas";
 import { randomUUID } from "node:crypto";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 
@@ -68,6 +68,25 @@ type RenderedJpg = {
   buffer: Buffer;
 };
 
+async function encodeCanvasToJpgBuffer(canvas: {
+  encode?: (mimeType: string, options?: Record<string, unknown>) => Promise<Uint8Array>;
+  toBuffer?: (mimeType?: string, config?: Record<string, unknown>) => Buffer;
+}) {
+  if (typeof canvas.encode === "function") {
+    const encoded = await canvas.encode("jpeg", { quality: JPG_QUALITY * 100 });
+    return Buffer.from(encoded);
+  }
+
+  if (typeof canvas.toBuffer === "function") {
+    return canvas.toBuffer("image/jpeg", {
+      quality: JPG_QUALITY,
+      progressive: true,
+    });
+  }
+
+  throw new Error("Canvas backend does not support JPEG encoding.");
+}
+
 async function renderPdfToJpgBuffers(pdfBuffer: Buffer) {
   const loadingTask = getDocument({
     data: new Uint8Array(pdfBuffer),
@@ -103,10 +122,7 @@ async function renderPdfToJpgBuffers(pdfBuffer: Buffer) {
 
       renderedPages.push({
         filename: `page-${pageNumber}.jpg`,
-        buffer: canvas.toBuffer("image/jpeg", {
-          quality: JPG_QUALITY,
-          progressive: true,
-        }),
+        buffer: await encodeCanvasToJpgBuffer(canvas),
       });
 
       page.cleanup();
