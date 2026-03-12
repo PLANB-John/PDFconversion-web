@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { head, put } from "@vercel/blob";
-import sharp from "sharp";
-import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import JSZip from "jszip";
+import { createCanvas } from "canvas";
 import { randomUUID } from "node:crypto";
-import { spawn } from "node:child_process";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+
+export const runtime = "nodejs";
 
 const MAX_FREE_PLAN_PAGES = 20;
 const JPG_DPI = 150;
+const JPG_QUALITY = 0.9;
 
 type ConvertRequestBody = {
   jobId?: string;
@@ -52,7 +53,9 @@ async function readPrivateBlob(pathname: string, token: string) {
       throw error;
     }
 
-    throw new PrivateBlobLoadError("Failed to load uploaded PDF from private blob storage.");
+    throw new PrivateBlobLoadError(
+      "Failed to load uploaded PDF from private blob storage.",
+    );
   }
 }
 
@@ -60,49 +63,90 @@ function createConvertJobId() {
   return `convert_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function getPdfPageCount(buffer: Buffer) {
-  const content = buffer.toString("latin1");
-  const matches = content.match(/\/Type\s*\/Page(?!s)\b/g);
-  return matches ? matches.length : 0;
-}
+type RenderedJpg = {
+  filename: string;
+  buffer: Buffer;
+};
 
-function runZip(directory: string, zipFilePath: string) {
-  return readdir(directory).then((entries) => {
-    const files = entries.filter((file) => file.endsWith(".jpg")).sort();
+async function renderPdfToJpgBuffers(pdfBuffer: Buffer) {
+  const loadingTask = getDocument({
+    data: new Uint8Array(pdfBuffer),
+    useSystemFonts: true,
+    isEvalSupported: false,
+    disableWorker: true,
+  });
 
-    if (files.length === 0) {
-      throw new Error("No JPG files were generated for ZIP creation.");
-    }
+  const pdfDocument = await loadingTask.promise;
 
-    return new Promise<void>((resolve, reject) => {
-      const zipProcess = spawn("zip", [
-        "-q",
-        "-j",
-        zipFilePath,
-        ...files.map((file) => join(directory, file)),
-      ]);
+  if (pdfDocument.numPages > MAX_FREE_PLAN_PAGES) {
+    await pdfDocument.destroy();
+    throw new PageLimitExceededError(
+      `Free plan allows up to ${MAX_FREE_PLAN_PAGES} pages. This PDF has ${pdfDocument.numPages} pages.`,
+    );
+  }
 
-      zipProcess.on("exit", (code) => {
-        if (code === 0) {
-          resolve();
-          return;
-        }
+  const scale = JPG_DPI / 72;
+  const renderedPages: RenderedJpg[] = [];
 
-        reject(new Error(`zip command failed with code ${code ?? "unknown"}`));
+  try {
+    for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
+      const page = await pdfDocument.getPage(pageNumber);
+      const viewport = page.getViewport({ scale });
+
+      const canvas = createCanvas(Math.ceil(viewport.width), Math.ceil(viewport.height));
+      const context = canvas.getContext("2d");
+
+      await page.render({
+        canvasContext: context,
+        viewport,
+      }).promise;
+
+      renderedPages.push({
+        filename: `page-${pageNumber}.jpg`,
+        buffer: canvas.toBuffer("image/jpeg", {
+          quality: JPG_QUALITY,
+          progressive: true,
+        }),
       });
 
-      zipProcess.on("error", reject);
-    });
+      page.cleanup();
+    }
+  } finally {
+    await pdfDocument.destroy();
+  }
+
+  if (renderedPages.length === 0) {
+    throw new Error("No JPG files were generated during PDF rendering.");
+  }
+
+  return {
+    pageCount: renderedPages.length,
+    renderedPages,
+  };
+}
+
+async function createZipFromRenderedPages(renderedPages: RenderedJpg[]) {
+  const zip = new JSZip();
+
+  for (const page of renderedPages) {
+    zip.file(page.filename, page.buffer);
+  }
+
+  return zip.generateAsync({
+    type: "nodebuffer",
+    compression: "DEFLATE",
+    compressionOptions: { level: 9 },
   });
 }
 
 export async function POST(request: Request) {
-  let workDir = "";
-
   try {
     const token = process.env.BLOB_READ_WRITE_TOKEN;
     if (!token) {
-      return NextResponse.json({ ok: false, error: "Blob storage token is missing." }, { status: 500 });
+      return NextResponse.json(
+        { ok: false, error: "Blob storage token is missing." },
+        { status: 500 },
+      );
     }
 
     const body = (await request.json().catch(() => null)) as ConvertRequestBody | null;
@@ -111,43 +155,16 @@ export async function POST(request: Request) {
     const filename = body?.filename?.trim();
 
     if (!jobId || !pathname || !filename) {
-      return NextResponse.json({ ok: false, error: "jobId, pathname, and filename are required." }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: "jobId, pathname, and filename are required." },
+        { status: 400 },
+      );
     }
 
     const pdfBuffer = await readPrivateBlob(pathname, token);
-    const pageCount = getPdfPageCount(pdfBuffer);
+    const { pageCount, renderedPages } = await renderPdfToJpgBuffers(pdfBuffer);
 
-    if (pageCount <= 0) {
-      return NextResponse.json({ ok: false, error: "Could not determine PDF page count." }, { status: 400 });
-    }
-
-    if (pageCount > MAX_FREE_PLAN_PAGES) {
-      throw new PageLimitExceededError(
-        `Free plan allows up to ${MAX_FREE_PLAN_PAGES} pages. This PDF has ${pageCount} pages.`,
-      );
-    }
-
-    if (!sharp.format.pdf.input.file && !sharp.format.pdf.input.buffer) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "This deployment does not include PDF rendering support. Enable PDF support in the server image pipeline.",
-        },
-        { status: 500 },
-      );
-    }
-
-    workDir = await mkdtemp(join(tmpdir(), "pdf-to-jpg-"));
-
-    for (let page = 1; page <= pageCount; page += 1) {
-      const outputPath = join(workDir, `page-${page}.jpg`);
-      await sharp(pdfBuffer, { density: JPG_DPI, page: page - 1 }).jpeg({ quality: 90 }).toFile(outputPath);
-    }
-
-    const zipFilePath = join(workDir, `${randomUUID()}.zip`);
-    await runZip(workDir, zipFilePath);
-
-    const zipBuffer = await readFile(zipFilePath);
+    const zipBuffer = await createZipFromRenderedPages(renderedPages);
     const safeFilename = filename.replace(/\.pdf$/i, "") || "converted";
     const zipPathname = `results/jpg/${Date.now()}-${randomUUID()}-${safeFilename}.zip`;
 
@@ -210,11 +227,5 @@ export async function POST(request: Request) {
       },
       { status: 500 },
     );
-  } finally {
-    if (workDir) {
-      await rm(workDir, { recursive: true, force: true }).catch((cleanupError) => {
-        console.error("Failed to cleanup conversion temp directory", cleanupError);
-      });
-    }
   }
 }
