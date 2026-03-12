@@ -3,13 +3,18 @@ import { head, put } from "@vercel/blob";
 import JSZip from "jszip";
 import { createCanvas } from "@napi-rs/canvas";
 import { randomUUID } from "node:crypto";
-import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf.mjs";
 
 export const runtime = "nodejs";
 
 const MAX_FREE_PLAN_PAGES = 20;
 const JPG_DPI = 150;
 const JPG_QUALITY = 0.9;
+
+GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/legacy/build/pdf.worker.mjs",
+  import.meta.url,
+).toString();
 
 type ConvertRequestBody = {
   jobId?: string;
@@ -92,7 +97,6 @@ async function renderPdfToJpgBuffers(pdfBuffer: Buffer) {
     data: new Uint8Array(pdfBuffer),
     useSystemFonts: true,
     isEvalSupported: false,
-    disableWorker: true,
   });
 
   const pdfDocument = await loadingTask.promise;
