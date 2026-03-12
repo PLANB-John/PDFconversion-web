@@ -16,6 +16,13 @@ function buildUniqueUploadPath(originalFilename: string) {
   return `uploads/pdf/${timestamp}-${uuid}-${finalFilename}`;
 }
 
+function createJobId() {
+  const timestamp = Date.now();
+  const randomSuffix = Math.random().toString(36).slice(2, 10);
+
+  return `job_${timestamp}_${randomSuffix}`;
+}
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -76,13 +83,19 @@ export async function POST(request: Request) {
         token,
       });
 
-      return NextResponse.json({
-        ok: true,
+      const uploadedAt = new Date().toISOString();
+      const job = {
+        id: createJobId(),
         filename: file.name,
         size: file.size,
         pathname: blob.pathname,
-        url: blob.url ?? null,
+        uploadedAt,
+      };
+
+      return NextResponse.json({
+        ok: true,
         message: "Upload stored successfully. Conversion backend is not connected yet.",
+        job,
       });
     } catch (blobError) {
       console.error("Blob upload failed", blobError);
