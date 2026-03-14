@@ -31,21 +31,58 @@ curl -X POST "http://localhost:8000/inspect" \
   -F "file=@/path/to/sample.pdf;type=application/pdf"
 ```
 
-Example success response:
+The endpoint now validates PDF input, reads the real page count, and applies the free-plan rule (20 pages max).
+
+### Example success response (within free plan)
 
 ```json
 {
   "ok": true,
   "filename": "sample.pdf",
   "contentType": "application/pdf",
-  "size": 12345
+  "size": 12345,
+  "pageCount": 12,
+  "withinFreeLimit": true,
+  "message": "PDF is within the free plan limit."
 }
 ```
 
-Example error response for a non-PDF file:
+### Example response (over free plan)
+
+```json
+{
+  "ok": true,
+  "filename": "large.pdf",
+  "contentType": "application/pdf",
+  "size": 987654,
+  "pageCount": 34,
+  "withinFreeLimit": false,
+  "message": "PDF exceeds the free plan limit of 20 pages."
+}
+```
+
+### Example error responses
+
+No file:
+
+```json
+{
+  "detail": "No file uploaded. Please send one PDF file in the 'file' field."
+}
+```
+
+Invalid file type:
 
 ```json
 {
   "detail": "Invalid file type. Please upload a PDF file."
+}
+```
+
+Unreadable PDF:
+
+```json
+{
+  "detail": "Could not read PDF page count. Please upload a valid PDF file."
 }
 ```
