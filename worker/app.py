@@ -4,6 +4,7 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from pypdf import PdfReader
 
 FREE_PLAN_PAGE_LIMIT = 20
+PDF_MAGIC_HEADER = b"%PDF"
 
 app = FastAPI(title="pdfconversion-worker")
 
@@ -22,12 +23,14 @@ async def inspect_pdf(file: UploadFile | None = File(default=None)) -> dict[str,
         )
 
     filename = file.filename or "uploaded.pdf"
-    is_pdf_content_type = file.content_type == "application/pdf"
+    content_type = file.content_type or "application/octet-stream"
+    is_pdf_content_type = content_type == "application/pdf"
     is_pdf_filename = filename.lower().endswith(".pdf")
-    if not (is_pdf_content_type or is_pdf_filename):
-        raise HTTPException(status_code=400, detail="Invalid file type. Please upload a PDF file.")
-
     content = await file.read()
+    is_pdf_header = content.startswith(PDF_MAGIC_HEADER)
+
+    if not (is_pdf_content_type or is_pdf_filename or is_pdf_header):
+        raise HTTPException(status_code=400, detail="Invalid file type. Please upload a PDF file.")
 
     try:
         page_count = len(PdfReader(BytesIO(content)).pages)
@@ -47,7 +50,7 @@ async def inspect_pdf(file: UploadFile | None = File(default=None)) -> dict[str,
     return {
         "ok": True,
         "filename": filename,
-        "contentType": file.content_type,
+        "contentType": content_type,
         "size": len(content),
         "pageCount": page_count,
         "withinFreeLimit": within_free_limit,
