@@ -27,6 +27,7 @@ async def inspect_pdf(file: UploadFile | None = File(default=None)) -> dict[str,
     is_pdf_content_type = content_type == "application/pdf"
     is_pdf_filename = filename.lower().endswith(".pdf")
     content = await file.read()
+    await file.close()
     is_pdf_header = content.startswith(PDF_MAGIC_HEADER)
 
     if not (is_pdf_content_type or is_pdf_filename or is_pdf_header):
