@@ -76,6 +76,25 @@ type ConvertResponse = {
   convertJob?: ConvertJob;
 };
 
+type InspectResponse = {
+  ok?: boolean;
+  error?: string;
+  message?: string;
+  filename?: string;
+  contentType?: string;
+  size?: number;
+  pageCount?: number;
+  withinFreeLimit?: boolean;
+};
+
+type InspectionResult = {
+  filename: string;
+  size: number;
+  pageCount: number;
+  withinFreeLimit: boolean;
+  message: string;
+};
+
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
 
 function formatFileSize(bytes: number) {
@@ -104,6 +123,8 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   const [isConverting, setIsConverting] = useState(false);
   const [currentStage, setCurrentStage] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string>("");
+  const [inspectionResult, setInspectionResult] = useState<InspectionResult | null>(null);
+  const [isInspecting, setIsInspecting] = useState(false);
   const [uploadedJob, setUploadedJob] = useState<UploadJob | null>(null);
   const [convertJob, setConvertJob] = useState<ConvertJob | null>(null);
 
@@ -112,6 +133,7 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
     setIsConverting(false);
     setCurrentStage(null);
     setStatusMessage("");
+    setInspectionResult(null);
     setUploadedJob(null);
     setConvertJob(null);
   };
@@ -130,7 +152,11 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || Boolean(error) || isUploading || isConverting) {
+    if (!selectedFile || Boolean(error) || isUploading || isConverting || isInspecting) {
+      return;
+    }
+
+    if (!inspectionResult?.withinFreeLimit) {
       return;
     }
 
@@ -175,7 +201,13 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   };
 
   const handleConvert = async () => {
-    if (!uploadedJob || isUploading || isConverting) {
+    if (
+      !uploadedJob ||
+      isUploading ||
+      isConverting ||
+      isInspecting ||
+      !inspectionResult?.withinFreeLimit
+    ) {
       return;
     }
 
@@ -240,10 +272,87 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
     setSelectedFile(file);
     resetProgress();
     setError("");
+
+    void inspectSelectedPdf(file);
   };
 
-  const isUploadDisabled = !selectedFile || Boolean(error) || isUploading || isConverting;
-  const isConvertDisabled = !uploadedJob || isUploading || isConverting;
+  const inspectSelectedPdf = async (file: File) => {
+    setIsInspecting(true);
+    setCurrentStage("Inspecting PDF...");
+    setStatusMessage("Checking page count and free plan limit...");
+    setInspectionResult(null);
+    setUploadedJob(null);
+    setConvertJob(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/inspect", {
+        method: "POST",
+        body: formData,
+      });
+
+      const payload = (await response.json().catch(() => null)) as InspectResponse | null;
+
+      if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.error ?? payload?.message ?? "Failed to inspect this PDF.");
+      }
+
+      if (
+        typeof payload.pageCount !== "number" ||
+        typeof payload.withinFreeLimit !== "boolean" ||
+        typeof payload.size !== "number"
+      ) {
+        throw new Error("Inspection response is missing required fields.");
+      }
+
+      const nextInspectionResult: InspectionResult = {
+        filename: payload.filename ?? file.name,
+        size: payload.size,
+        pageCount: payload.pageCount,
+        withinFreeLimit: payload.withinFreeLimit,
+        message:
+          payload.message ??
+          (payload.withinFreeLimit
+            ? "PDF is within the free plan limit."
+            : "PDF exceeds the free plan limit of 20 pages."),
+      };
+
+      setInspectionResult(nextInspectionResult);
+      setCurrentStage("Inspection complete");
+      setStatusMessage(nextInspectionResult.message);
+
+      if (!nextInspectionResult.withinFreeLimit) {
+        setError(nextInspectionResult.message);
+      }
+    } catch (inspectionError) {
+      const message =
+        inspectionError instanceof Error
+          ? inspectionError.message
+          : "Inspection failed. Please try again.";
+      setError(`Inspection failed: ${message}`);
+      setCurrentStage(null);
+      setStatusMessage("");
+      setInspectionResult(null);
+    } finally {
+      setIsInspecting(false);
+    }
+  };
+
+  const isUploadDisabled =
+    !selectedFile ||
+    Boolean(error) ||
+    isUploading ||
+    isConverting ||
+    isInspecting ||
+    !inspectionResult?.withinFreeLimit;
+  const isConvertDisabled =
+    !uploadedJob ||
+    !inspectionResult?.withinFreeLimit ||
+    isUploading ||
+    isConverting ||
+    isInspecting;
 
   return (
     <div className="rounded-2xl border border-slate-300 bg-white p-8 shadow-sm">
@@ -283,6 +392,27 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
             >
               {t.removeFile}
             </button>
+
+            {inspectionResult ? (
+              <div className="mt-3 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                <p>
+                  {t.selectedFile}: {inspectionResult.filename}
+                </p>
+                <p>
+                  {t.fileSize}: {formatFileSize(inspectionResult.size)}
+                </p>
+                <p>
+                  {t.pageCount}: {inspectionResult.pageCount}
+                </p>
+                <p
+                  className={`font-medium ${
+                    inspectionResult.withinFreeLimit ? "text-emerald-700" : "text-red-600"
+                  }`}
+                >
+                  {inspectionResult.message}
+                </p>
+              </div>
+            ) : null}
           </div>
         ) : null}
       </div>
@@ -305,7 +435,7 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
               : "cursor-pointer bg-slate-900 text-white hover:bg-slate-800"
           }`}
         >
-          {t.uploadTitle}
+          {isInspecting ? "Inspecting PDF..." : t.uploadTitle}
         </button>
 
         <button

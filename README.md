@@ -8,6 +8,12 @@ Install dependencies:
 npm install
 ```
 
+Set app environment variables (example):
+
+```bash
+PDF_WORKER_BASE_URL=http://localhost:8000
+```
+
 Run the development server:
 
 ```bash
