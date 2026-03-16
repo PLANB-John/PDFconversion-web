@@ -14,25 +14,26 @@ function getWorkerBaseUrl() {
 
 export async function POST(request: Request) {
   try {
-    const contentType = request.headers.get("content-type") ?? "";
+    const formData = await request.formData();
+    const fileEntries = [...formData.entries()].filter(([, value]) => value instanceof File);
+    const uploadedFile = formData.get("file");
 
-    if (!contentType.toLowerCase().startsWith("multipart/form-data")) {
+    if (!(uploadedFile instanceof File) || fileEntries.length !== 1) {
       return NextResponse.json(
         {
           ok: false,
-          error: "A multipart/form-data request with one PDF file is required.",
+          error: "A multipart/form-data request with exactly one PDF file is required.",
         },
         { status: 400 },
       );
     }
 
+    const upstreamFormData = new FormData();
+    upstreamFormData.append("file", uploadedFile, uploadedFile.name);
+
     const response = await fetch(`${getWorkerBaseUrl()}${CONVERT_ENDPOINT_PATH}`, {
       method: "POST",
-      headers: {
-        "content-type": contentType,
-      },
-      body: request.body,
-      duplex: "half",
+      body: upstreamFormData,
       cache: "no-store",
     });
 
@@ -53,7 +54,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const zipBuffer = await response.arrayBuffer();
     const contentDisposition =
       response.headers.get("content-disposition") ??
       'attachment; filename="converted-jpg.zip"';
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
       headers.set("X-Converted-Page-Count", convertedPageCount);
     }
 
-    return new Response(zipBuffer, {
+    return new Response(response.body, {
       status: 200,
       headers,
     });
