@@ -13,13 +13,7 @@ PDF_MAGIC_HEADER = b"%PDF"
 app = FastAPI(title="pdfconversion-worker")
 
 
-@app.get("/health")
-def health_check() -> dict[str, bool | str]:
-    return {"ok": True, "service": "pdfconversion-worker"}
-
-
-@app.post("/inspect")
-async def inspect_pdf(file: UploadFile | None = File(default=None)) -> dict[str, bool | str | int]:
+async def _read_and_validate_pdf(file: UploadFile | None) -> tuple[str, str, bytes, int]:
     if file is None:
         raise HTTPException(
             status_code=400,
@@ -45,6 +39,18 @@ async def inspect_pdf(file: UploadFile | None = File(default=None)) -> dict[str,
             detail="Could not read PDF page count. Please upload a valid PDF file.",
         )
 
+    return filename, content_type, content, page_count
+
+
+@app.get("/health")
+def health_check() -> dict[str, bool | str]:
+    return {"ok": True, "service": "pdfconversion-worker"}
+
+
+@app.post("/inspect")
+async def inspect_pdf(file: UploadFile | None = File(default=None)) -> dict[str, bool | str | int]:
+    filename, content_type, content, page_count = await _read_and_validate_pdf(file)
+
     within_free_limit = page_count <= FREE_PLAN_PAGE_LIMIT
     message = (
         "PDF is within the free plan limit."
@@ -64,35 +70,18 @@ async def inspect_pdf(file: UploadFile | None = File(default=None)) -> dict[str,
 
 
 @app.post("/convert")
-async def convert_pdf(request: Request) -> Response:
+async def convert_pdf(request: Request, file: UploadFile | None = File(default=None)) -> Response:
     form = await request.form()
-    uploaded_files = [value for value in form.values() if isinstance(value, UploadFile)]
+    uploaded_files = form.getlist("file")
 
     if len(uploaded_files) != 1:
         raise HTTPException(
             status_code=400,
-            detail="Exactly one PDF file must be uploaded in multipart/form-data.",
+            detail="Exactly one PDF file must be uploaded in the 'file' field.",
         )
 
     file = uploaded_files[0]
-    filename = file.filename or "uploaded.pdf"
-    content_type = file.content_type or "application/octet-stream"
-    is_pdf_content_type = content_type == "application/pdf"
-    is_pdf_filename = filename.lower().endswith(".pdf")
-    content = await file.read()
-    await file.close()
-    is_pdf_header = content.startswith(PDF_MAGIC_HEADER)
-
-    if not (is_pdf_content_type or is_pdf_filename or is_pdf_header):
-        raise HTTPException(status_code=400, detail="Invalid file type. Please upload a PDF file.")
-
-    try:
-        page_count = len(PdfReader(BytesIO(content)).pages)
-    except Exception:
-        raise HTTPException(
-            status_code=400,
-            detail="Could not read PDF page count. Please upload a valid PDF file.",
-        )
+    filename, _, content, page_count = await _read_and_validate_pdf(file)
 
     if page_count > FREE_PLAN_PAGE_LIMIT:
         return JSONResponse(
