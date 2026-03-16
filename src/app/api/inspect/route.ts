@@ -1,23 +1,14 @@
 import { NextResponse } from "next/server";
 
+import { buildSingleFileFormData, getSingleUploadedFile, getWorkerBaseUrl } from "../_workerProxy";
+
 const INSPECT_ENDPOINT_PATH = "/inspect";
-
-function getWorkerBaseUrl() {
-  const workerBaseUrl = process.env.PDF_WORKER_BASE_URL?.trim();
-
-  if (!workerBaseUrl) {
-    throw new Error("PDF_WORKER_BASE_URL is not configured.");
-  }
-
-  return workerBaseUrl.replace(/\/+$/, "");
-}
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData();
-    const file = formData.get("file");
+    const file = await getSingleUploadedFile(request);
 
-    if (!(file instanceof File)) {
+    if (!file) {
       return NextResponse.json(
         {
           ok: false,
@@ -27,12 +18,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const upstreamFormData = new FormData();
-    upstreamFormData.append("file", file, file.name);
-
     const response = await fetch(`${getWorkerBaseUrl()}${INSPECT_ENDPOINT_PATH}`, {
       method: "POST",
-      body: upstreamFormData,
+      body: buildSingleFileFormData(file),
       cache: "no-store",
     });
 
