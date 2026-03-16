@@ -14,25 +14,25 @@ function getWorkerBaseUrl() {
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData();
-    const file = formData.get("file");
+    const contentType = request.headers.get("content-type") ?? "";
 
-    if (!(file instanceof File)) {
+    if (!contentType.toLowerCase().startsWith("multipart/form-data")) {
       return NextResponse.json(
         {
           ok: false,
-          error: "File is required.",
+          error: "A multipart/form-data request with one PDF file is required.",
         },
         { status: 400 },
       );
     }
 
-    const upstreamFormData = new FormData();
-    upstreamFormData.append("file", file, file.name);
-
     const response = await fetch(`${getWorkerBaseUrl()}${CONVERT_ENDPOINT_PATH}`, {
       method: "POST",
-      body: upstreamFormData,
+      headers: {
+        "content-type": contentType,
+      },
+      body: request.body,
+      duplex: "half",
       cache: "no-store",
     });
 
