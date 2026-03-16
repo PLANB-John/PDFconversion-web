@@ -44,38 +44,6 @@ type PdfToJpgUploadPanelProps = {
   t: PdfToJpgCopy;
 };
 
-type UploadJob = {
-  id: string;
-  filename: string;
-  size: number;
-  pathname: string;
-  uploadedAt: string;
-};
-
-type ConvertJob = {
-  id: string;
-  sourceJobId: string;
-  sourcePathname: string;
-  filename: string;
-  pageCount: number;
-  zipPathname: string;
-  completedAt: string;
-};
-
-type UploadResponse = {
-  ok?: boolean;
-  error?: string;
-  message?: string;
-  job?: UploadJob;
-};
-
-type ConvertResponse = {
-  ok?: boolean;
-  error?: string;
-  message?: string;
-  convertJob?: ConvertJob;
-};
-
 type InspectResponse = {
   ok?: boolean;
   error?: string;
@@ -114,33 +82,41 @@ function formatFileSize(bytes: number) {
   return `${size.toFixed(2)} ${units[unitIndex]}`;
 }
 
+function readDownloadFilename(contentDisposition: string | null, fallbackFilename: string) {
+  if (!contentDisposition) {
+    return fallbackFilename;
+  }
+
+  const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utf8Match?.[1]) {
+    return decodeURIComponent(utf8Match[1]);
+  }
+
+  const basicMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+  if (basicMatch?.[1]) {
+    return basicMatch[1];
+  }
+
+  return fallbackFilename;
+}
+
 export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string>("");
-  const [isUploading, setIsUploading] = useState(false);
   const [isConverting, setIsConverting] = useState(false);
   const [currentStage, setCurrentStage] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [inspectionResult, setInspectionResult] = useState<InspectionResult | null>(null);
   const [isInspecting, setIsInspecting] = useState(false);
-  const [uploadedJob, setUploadedJob] = useState<UploadJob | null>(null);
-  const [convertJob, setConvertJob] = useState<ConvertJob | null>(null);
 
-  const resetProgress = () => {
-    setIsUploading(false);
+  const clearSelection = () => {
+    setSelectedFile(null);
     setIsConverting(false);
     setCurrentStage(null);
     setStatusMessage("");
     setInspectionResult(null);
-    setUploadedJob(null);
-    setConvertJob(null);
-  };
-
-  const clearSelection = () => {
-    setSelectedFile(null);
-    resetProgress();
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -151,63 +127,8 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
     clearSelection();
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile || Boolean(error) || isUploading || isConverting || isInspecting) {
-      return;
-    }
-
-    if (!inspectionResult?.withinFreeLimit) {
-      return;
-    }
-
-    setError("");
-    setStatusMessage("");
-    setUploadedJob(null);
-    setConvertJob(null);
-    setIsUploading(true);
-
-    try {
-      setCurrentStage("Uploading");
-
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const payload = (await response.json().catch(() => null)) as UploadResponse | null;
-
-      if (!response.ok || !payload?.ok) {
-        throw new Error(payload?.error ?? t.serverValidationError);
-      }
-
-      if (!payload.job) {
-        throw new Error(t.serverValidationError);
-      }
-
-      setCurrentStage(t.uploaded);
-      setUploadedJob(payload.job);
-      setStatusMessage(payload.message ?? `${t.uploadStoredSuccessfully} ${t.storageUploadComplete}`);
-    } catch (uploadError) {
-      const message = uploadError instanceof Error ? uploadError.message : t.serverValidationError;
-      setError(`${t.uploadFailed} ${message}`);
-      setCurrentStage(null);
-      setUploadedJob(null);
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   const handleConvert = async () => {
-    if (
-      !uploadedJob ||
-      isUploading ||
-      isConverting ||
-      isInspecting ||
-      !inspectionResult?.withinFreeLimit
-    ) {
+    if (!selectedFile || isConverting || isInspecting || !inspectionResult?.withinFreeLimit) {
       return;
     }
 
@@ -215,35 +136,47 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
     setIsConverting(true);
     setCurrentStage(t.convertingPages);
     setStatusMessage(t.convertingPages);
-    setConvertJob(null);
 
     try {
+      const formData = new FormData();
+      formData.append("file", selectedFile, selectedFile.name);
+
       const response = await fetch("/api/convert", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jobId: uploadedJob.id,
-          pathname: uploadedJob.pathname,
-          filename: uploadedJob.filename,
-        }),
+        body: formData,
       });
 
-      const payload = (await response.json().catch(() => null)) as ConvertResponse | null;
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as
+          | { ok?: boolean; error?: string; message?: string }
+          | null;
 
-      if (!response.ok || !payload?.ok || !payload.convertJob) {
-        throw new Error(payload?.error ?? t.conversionFailed);
+        throw new Error(payload?.error ?? payload?.message ?? t.conversionFailed);
       }
 
-      setConvertJob(payload.convertJob);
+      const blob = await response.blob();
+      const fallbackName = `${selectedFile.name.replace(/\.pdf$/i, "") || "converted"}-jpg.zip`;
+      const downloadFilename = readDownloadFilename(
+        response.headers.get("content-disposition"),
+        fallbackName,
+      );
+
+      const objectUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = downloadFilename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(objectUrl);
+
       setCurrentStage(t.conversionComplete);
-      setStatusMessage(payload.message ?? t.resultReady);
+      setStatusMessage(t.resultReady);
     } catch (convertError) {
       const message = convertError instanceof Error ? convertError.message : t.conversionFailed;
       setError(`${t.conversionFailed}: ${message}`);
       setCurrentStage(null);
-      setConvertJob(null);
+      setStatusMessage("");
     } finally {
       setIsConverting(false);
     }
@@ -270,7 +203,9 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
     }
 
     setSelectedFile(file);
-    resetProgress();
+    setCurrentStage(null);
+    setStatusMessage("");
+    setInspectionResult(null);
     setError("");
 
     void inspectSelectedPdf(file);
@@ -281,8 +216,6 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
     setCurrentStage("Inspecting PDF...");
     setStatusMessage("Checking page count and free plan limit...");
     setInspectionResult(null);
-    setUploadedJob(null);
-    setConvertJob(null);
 
     try {
       const formData = new FormData();
@@ -320,12 +253,8 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
       };
 
       setInspectionResult(nextInspectionResult);
-      setCurrentStage("Inspection complete");
+      setCurrentStage(payload.withinFreeLimit ? "Ready for conversion." : "Conversion blocked.");
       setStatusMessage(nextInspectionResult.message);
-
-      if (!nextInspectionResult.withinFreeLimit) {
-        setError(nextInspectionResult.message);
-      }
     } catch (inspectionError) {
       const message =
         inspectionError instanceof Error
@@ -340,19 +269,8 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
     }
   };
 
-  const isUploadDisabled =
-    !selectedFile ||
-    Boolean(error) ||
-    isUploading ||
-    isConverting ||
-    isInspecting ||
-    !inspectionResult?.withinFreeLimit;
   const isConvertDisabled =
-    !uploadedJob ||
-    !inspectionResult?.withinFreeLimit ||
-    isUploading ||
-    isConverting ||
-    isInspecting;
+    !selectedFile || !inspectionResult?.withinFreeLimit || isConverting || isInspecting;
 
   return (
     <div className="rounded-2xl border border-slate-300 bg-white p-8 shadow-sm">
@@ -427,19 +345,6 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
       <div className="mt-6 space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
         <button
           type="button"
-          onClick={handleUpload}
-          disabled={isUploadDisabled}
-          className={`w-full rounded-md px-5 py-2.5 text-sm font-semibold transition ${
-            isUploadDisabled
-              ? "pointer-events-none cursor-not-allowed bg-slate-300 text-slate-600"
-              : "cursor-pointer bg-slate-900 text-white hover:bg-slate-800"
-          }`}
-        >
-          {isInspecting ? "Inspecting PDF..." : t.uploadTitle}
-        </button>
-
-        <button
-          type="button"
           onClick={handleConvert}
           disabled={isConvertDisabled}
           className={`w-full rounded-md px-5 py-2.5 text-sm font-semibold transition ${
@@ -448,49 +353,10 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
               : "cursor-pointer bg-emerald-700 text-white hover:bg-emerald-600"
           }`}
         >
-          Convert to JPG ZIP
+          {isInspecting ? "Inspecting PDF..." : "Convert to JPG ZIP"}
         </button>
 
         {currentStage ? <p className="text-center text-sm font-medium text-slate-700">{currentStage}</p> : null}
-
-        {uploadedJob ? (
-          <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-left text-sm text-emerald-900">
-            <p className="font-semibold">{t.uploadJob}</p>
-            <p className="mt-1">
-              {t.jobId}: {uploadedJob.id}
-            </p>
-            <p>
-              {t.selectedFile}: {uploadedJob.filename}
-            </p>
-            <p>
-              {t.fileSize}: {formatFileSize(uploadedJob.size)}
-            </p>
-            <p>
-              {t.storedPathname}: {uploadedJob.pathname}
-            </p>
-            <p>
-              {t.uploadedTime}: {new Date(uploadedJob.uploadedAt).toLocaleString()}
-            </p>
-          </div>
-        ) : null}
-
-        {convertJob ? (
-          <div className="rounded-lg border border-sky-200 bg-sky-50 p-3 text-left text-sm text-sky-900">
-            <p className="font-semibold">{t.convertJob}</p>
-            <p className="mt-1">
-              {t.jobId}: {convertJob.id}
-            </p>
-            <p>
-              {t.pageCount}: {convertJob.pageCount}
-            </p>
-            <p>
-              {t.resultZip}: {convertJob.zipPathname}
-            </p>
-            <p>
-              {t.completedTime}: {new Date(convertJob.completedAt).toLocaleString()}
-            </p>
-          </div>
-        ) : null}
 
         <p className="text-center text-sm text-slate-600">{statusMessage || t.conversionNotConnectedYet}</p>
       </div>
