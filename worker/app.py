@@ -1,5 +1,6 @@
 from io import BytesIO
 from pathlib import Path
+from urllib.parse import quote
 from zipfile import ZIP_DEFLATED, ZipFile
 
 import pypdfium2 as pdfium
@@ -9,8 +10,18 @@ from pypdf import PdfReader
 
 FREE_PLAN_PAGE_LIMIT = 20
 PDF_MAGIC_HEADER = b"%PDF"
+DEFAULT_ZIP_FILENAME = "pdf-to-jpg.zip"
 
 app = FastAPI(title="pdfconversion-worker")
+
+
+def _build_zip_content_disposition(source_filename: str) -> str:
+    base_name = Path(source_filename).stem.strip() or "converted"
+    encoded_filename = quote(f"{base_name}-jpg.zip", safe="")
+    return (
+        f'attachment; filename="{DEFAULT_ZIP_FILENAME}"; '
+        f"filename*=UTF-8''{encoded_filename}"
+    )
 
 
 async def _read_and_validate_pdf(file: UploadFile | None) -> tuple[str, str, bytes, int]:
@@ -92,8 +103,6 @@ async def convert_pdf(request: Request, file: UploadFile | None = File(default=N
             },
         )
 
-    base_name = Path(filename).stem or "converted"
-    zip_filename = f"{base_name}-jpg.zip"
     zip_bytes = BytesIO()
 
     pdf = pdfium.PdfDocument(content)
@@ -116,7 +125,7 @@ async def convert_pdf(request: Request, file: UploadFile | None = File(default=N
         content=zip_bytes.getvalue(),
         media_type="application/zip",
         headers={
-            "Content-Disposition": f'attachment; filename="{zip_filename}"',
+            "Content-Disposition": _build_zip_content_disposition(filename),
             "X-Converted-Page-Count": str(page_count),
         },
     )
