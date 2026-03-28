@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { dictionary, type Locale } from "@/lib/i18n";
+import AuthSection from "@/components/AuthSection";
 
 type LocalePageProps = {
   params: Promise<{ locale: Locale }>;
@@ -22,6 +23,8 @@ export default async function LocalePage({ params }: LocalePageProps) {
           {t.buttonText}
         </Link>
       </div>
+
+      <AuthSection />
 
       <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 md:grid-cols-3">
         <div className="rounded-lg bg-slate-50 p-4 text-center text-sm font-medium text-slate-700">
