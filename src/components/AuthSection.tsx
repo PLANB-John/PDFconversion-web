@@ -6,6 +6,16 @@ import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
 
 type AuthMode = "sign-in" | "sign-up";
 type MessageType = "success" | "error" | null;
+type AuthSectionVariant = "default" | "compact";
+
+type AuthSectionProps = {
+  id?: string;
+  className?: string;
+  variant?: AuthSectionVariant;
+  title?: string;
+  subtitle?: string;
+  policyMessage?: string;
+};
 
 function getFriendlyErrorMessage(message: string): string {
   const normalized = message.toLowerCase();
@@ -21,7 +31,14 @@ function getFriendlyErrorMessage(message: string): string {
   return "Authentication failed. Please try again.";
 }
 
-export default function AuthSection() {
+export default function AuthSection({
+  id,
+  className,
+  variant = "default",
+  title = "Account",
+  subtitle,
+  policyMessage,
+}: AuthSectionProps) {
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const [mode, setMode] = useState<AuthMode>("sign-in");
   const [session, setSession] = useState<Session | null>(null);
@@ -132,18 +149,29 @@ export default function AuthSection() {
   }
 
   const signedInEmail = session?.user?.email;
+  const isCompact = variant === "compact";
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" aria-live="polite">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h3 className="text-xl font-semibold text-slate-900">Account</h3>
+    <section
+      id={id}
+      className={`rounded-2xl border border-slate-200 bg-white shadow-sm ${isCompact ? "p-5" : "p-6"} ${
+        className ?? ""
+      }`}
+      aria-live="polite"
+    >
+      <div className={`mb-4 flex items-center gap-3 ${isCompact ? "justify-center text-center" : "justify-between"}`}>
+        <div>
+          <h3 className={`${isCompact ? "text-lg" : "text-xl"} font-semibold text-slate-900`}>{title}</h3>
+          {subtitle ? <p className="mt-1 text-sm text-slate-600">{subtitle}</p> : null}
+          {policyMessage ? <p className="mt-1 text-xs text-slate-500">{policyMessage}</p> : null}
+        </div>
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
           {signedInEmail ? "Signed in" : "Signed out"}
         </span>
       </div>
 
       {signedInEmail ? (
-        <div className="space-y-4">
+        <div className={`space-y-4 ${isCompact ? "text-center" : ""}`}>
           <p className="text-sm text-slate-700">
             Signed in as <span className="font-semibold text-slate-900">{signedInEmail}</span>
           </p>
@@ -157,7 +185,7 @@ export default function AuthSection() {
           </button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className={`space-y-4 ${isCompact ? "flex flex-col items-center" : ""}`}>
           <div className="inline-flex rounded-md border border-slate-300 bg-slate-50 p-1">
             <button
               type="button"
@@ -179,7 +207,10 @@ export default function AuthSection() {
             </button>
           </div>
 
-          <form className="grid gap-3 sm:max-w-md" onSubmit={(event) => void handleAuthSubmit(event)}>
+          <form
+            className={`grid gap-3 ${isCompact ? "w-full max-w-sm" : "sm:max-w-md"}`}
+            onSubmit={(event) => void handleAuthSubmit(event)}
+          >
             <label className="grid gap-1 text-sm text-slate-700">
               Email
               <input

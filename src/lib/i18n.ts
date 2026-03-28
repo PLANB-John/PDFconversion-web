@@ -13,6 +13,11 @@ type Dictionary = {
   pdfToJpgCtaTitle: string;
   pdfToJpgCtaDescription: string;
   pdfToJpgCtaButton: string;
+  signIn: string;
+  signUp: string;
+  usagePolicyShort: string;
+  authAccessTitle: string;
+  authAccessSubtitle: string;
   pricing: string;
   privacy: string;
   terms: string;
@@ -86,6 +91,11 @@ export const dictionary: Record<Locale, Dictionary> = {
     pdfToJpgCtaTitle: "PDF to JPG 변환",
     pdfToJpgCtaDescription: "PDF 페이지를 고품질 JPG 이미지로 변환하는 도구를 준비 중입니다.",
     pdfToJpgCtaButton: "PDF to JPG 열기",
+    signIn: "로그인",
+    signUp: "회원가입",
+    usagePolicyShort: "게스트는 하루 5회 무료 이용, 인증 회원은 하루 10회 이용할 수 있습니다.",
+    authAccessTitle: "계정으로 더 많은 사용량 받기",
+    authAccessSubtitle: "로그인 또는 회원가입은 선택 사항이며, 한도에 도달하면 더 큰 안내를 표시할 예정입니다.",
     pricing: "요금",
     privacy: "개인정보처리방침",
     terms: "이용약관",
@@ -164,6 +174,12 @@ export const dictionary: Record<Locale, Dictionary> = {
     pdfToJpgCtaTitle: "PDF to JPG Conversion",
     pdfToJpgCtaDescription: "A dedicated tool for turning PDF pages into high-quality JPG images.",
     pdfToJpgCtaButton: "Open PDF to JPG",
+    signIn: "Sign in",
+    signUp: "Sign up",
+    usagePolicyShort: "Guests get 5 free uses per day. Verified members get 10 uses per day.",
+    authAccessTitle: "Get more usage with an account",
+    authAccessSubtitle:
+      "Signing in is optional for now, and a larger upgrade prompt can be shown later when free usage is exhausted.",
     pricing: "Pricing",
     privacy: "Privacy",
     terms: "Terms",
@@ -244,6 +260,12 @@ export const dictionary: Record<Locale, Dictionary> = {
     pdfToJpgCtaTitle: "PDF to JPG 変換",
     pdfToJpgCtaDescription: "PDFページを高品質なJPG画像に変換するツールを準備中です。",
     pdfToJpgCtaButton: "PDF to JPG を開く",
+    signIn: "サインイン",
+    signUp: "サインアップ",
+    usagePolicyShort: "ゲストは1日5回まで無料、認証済みメンバーは1日10回まで利用できます。",
+    authAccessTitle: "アカウントで利用枠を増やす",
+    authAccessSubtitle:
+      "サインイン/登録は任意です。無料枠に達したときに、より大きな案内を後から表示できる構成です。",
     pricing: "料金",
     privacy: "プライバシー",
     terms: "利用規約",
@@ -324,6 +346,12 @@ export const dictionary: Record<Locale, Dictionary> = {
     pdfToJpgCtaTitle: "Conversión de PDF a JPG",
     pdfToJpgCtaDescription: "Una herramienta para convertir páginas PDF en imágenes JPG de alta calidad.",
     pdfToJpgCtaButton: "Abrir PDF a JPG",
+    signIn: "Iniciar sesión",
+    signUp: "Registrarse",
+    usagePolicyShort: "Los invitados tienen 5 usos gratis al día. Los miembros verificados tienen 10 usos al día.",
+    authAccessTitle: "Obtén más uso con una cuenta",
+    authAccessSubtitle:
+      "Iniciar sesión es opcional por ahora, y más adelante se puede mostrar un aviso mayor al llegar al límite gratuito.",
     pricing: "Precios",
     privacy: "Privacidad",
     terms: "Términos",
@@ -409,6 +437,12 @@ export const dictionary: Record<Locale, Dictionary> = {
     pdfToJpgCtaTitle: "PDF-zu-JPG-Konvertierung",
     pdfToJpgCtaDescription: "Ein Tool, um PDF-Seiten in hochwertige JPG-Bilder umzuwandeln.",
     pdfToJpgCtaButton: "PDF zu JPG öffnen",
+    signIn: "Anmelden",
+    signUp: "Registrieren",
+    usagePolicyShort: "Gäste erhalten 5 kostenlose Nutzungen pro Tag. Verifizierte Mitglieder erhalten 10 pro Tag.",
+    authAccessTitle: "Mit Konto mehr Nutzung erhalten",
+    authAccessSubtitle:
+      "Anmeldung ist derzeit optional. Später kann bei Erreichen des Gratislimits ein größerer Hinweis angezeigt werden.",
     pricing: "Preise",
     privacy: "Datenschutz",
     terms: "Nutzungsbedingungen",
