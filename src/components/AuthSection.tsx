@@ -159,8 +159,12 @@ export default function AuthSection({
       }`}
       aria-live="polite"
     >
-      <div className={`mb-4 flex items-center gap-3 ${isCompact ? "justify-center text-center" : "justify-between"}`}>
-        <div>
+      <div
+        className={`mb-4 flex gap-3 ${
+          isCompact ? "flex-col items-center text-center" : "items-center justify-between"
+        }`}
+      >
+        <div className={isCompact ? "text-center" : ""}>
           <h3 className={`${isCompact ? "text-lg" : "text-xl"} font-semibold text-slate-900`}>{title}</h3>
           {subtitle ? <p className="mt-1 text-sm text-slate-600">{subtitle}</p> : null}
           {policyMessage ? <p className="mt-1 text-xs text-slate-500">{policyMessage}</p> : null}
