@@ -94,7 +94,7 @@ export const dictionary: Record<Locale, Dictionary> = {
     signIn: "로그인",
     signUp: "회원가입",
     usagePolicyShort: "게스트는 하루 5회 무료 이용, 인증 회원은 하루 10회 이용할 수 있습니다.",
-    authAccessTitle: "계정으로 더 많은 사용량 받기",
+    authAccessTitle: "가입하고 더 많은 사용량 받기",
     authAccessSubtitle: "로그인 또는 회원가입은 선택 사항이며, 한도에 도달하면 더 큰 안내를 표시할 예정입니다.",
     pricing: "요금",
     privacy: "개인정보처리방침",
