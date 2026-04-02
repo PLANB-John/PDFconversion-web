@@ -65,7 +65,7 @@ export default async function LocalePage({ params }: LocalePageProps) {
       <AuthSection
         id="auth-access"
         variant="compact"
-        className="mx-auto w-full max-w-xl"
+        className="w-full"
         title={t.authAccessTitle}
         subtitle={t.authAccessSubtitle}
         policyMessage={t.usagePolicyShort}
