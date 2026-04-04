@@ -11,11 +11,20 @@ export default function Header({ locale }: HeaderProps) {
 
   return (
     <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex w-full max-w-4xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 px-6 py-4 md:flex-row md:items-center md:justify-between">
         <Link className="text-lg font-semibold text-slate-900" href={`/${locale}`}>
           {t.siteTitle}
         </Link>
-        <nav className="flex items-center gap-4 text-sm text-slate-700">
+        <nav className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-700">
+          <Link className="hover:text-slate-900" href={`/${locale}/about`}>
+            {t.about}
+          </Link>
+          <Link className="hover:text-slate-900" href={`/${locale}/contact`}>
+            {t.contact}
+          </Link>
+          <Link className="hover:text-slate-900" href={`/${locale}/faq`}>
+            {t.faq}
+          </Link>
           <Link className="hover:text-slate-900" href={`/${locale}/pricing`}>
             {t.pricing}
           </Link>
