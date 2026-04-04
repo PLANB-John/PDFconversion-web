@@ -19,6 +19,9 @@ type Dictionary = {
   authAccessTitle: string;
   authAccessSubtitle: string;
   pricing: string;
+  about: string;
+  contact: string;
+  faq: string;
   privacy: string;
   terms: string;
   free: string;
@@ -97,6 +100,9 @@ export const dictionary: Record<Locale, Dictionary> = {
     authAccessTitle: "가입하고 더 많은 사용량 받기",
     authAccessSubtitle: "로그인 또는 회원가입은 선택 사항이며, 한도에 도달하면 더 큰 안내를 표시할 예정입니다.",
     pricing: "요금",
+    about: "소개",
+    contact: "문의",
+    faq: "자주 묻는 질문",
     privacy: "개인정보처리방침",
     terms: "이용약관",
     free: "무료",
@@ -181,6 +187,9 @@ export const dictionary: Record<Locale, Dictionary> = {
     authAccessSubtitle:
       "Signing in is optional for now, and a larger upgrade prompt can be shown later when free usage is exhausted.",
     pricing: "Pricing",
+    about: "About",
+    contact: "Contact",
+    faq: "FAQ",
     privacy: "Privacy",
     terms: "Terms",
     free: "Free",
@@ -267,6 +276,9 @@ export const dictionary: Record<Locale, Dictionary> = {
     authAccessSubtitle:
       "サインイン/登録は任意です。無料枠に達したときに、より大きな案内を後から表示できる構成です。",
     pricing: "料金",
+    about: "サービス概要",
+    contact: "お問い合わせ",
+    faq: "よくある質問",
     privacy: "プライバシー",
     terms: "利用規約",
     free: "無料",
@@ -353,6 +365,9 @@ export const dictionary: Record<Locale, Dictionary> = {
     authAccessSubtitle:
       "Iniciar sesión es opcional por ahora, y más adelante se puede mostrar un aviso mayor al llegar al límite gratuito.",
     pricing: "Precios",
+    about: "Acerca de",
+    contact: "Contacto",
+    faq: "Preguntas frecuentes",
     privacy: "Privacidad",
     terms: "Términos",
     free: "Gratis",
@@ -444,6 +459,9 @@ export const dictionary: Record<Locale, Dictionary> = {
     authAccessSubtitle:
       "Anmeldung ist derzeit optional. Später kann bei Erreichen des Gratislimits ein größerer Hinweis angezeigt werden.",
     pricing: "Preise",
+    about: "Über uns",
+    contact: "Kontakt",
+    faq: "FAQ",
     privacy: "Datenschutz",
     terms: "Nutzungsbedingungen",
     free: "Kostenlos",
