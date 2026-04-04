@@ -1,6 +1,10 @@
 "use client";
 
-import { useId, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type ChangeEvent } from "react";
+import type { Session } from "@supabase/supabase-js";
+
+import { getOrCreateGuestId } from "@/lib/guestId";
+import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
 
 type PdfToJpgCopy = {
   uploadTitle: string;
@@ -63,6 +67,16 @@ type InspectionResult = {
   message: string;
 };
 
+type UsageResponse = {
+  ok: boolean;
+  usageCount: number;
+  dailyLimit: number;
+  remaining: number;
+  isLimitReached: boolean;
+  identityType: "guest" | "verified_user" | "unverified_user";
+  error?: string;
+};
+
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
 
 function formatFileSize(bytes: number) {
@@ -101,6 +115,7 @@ function readDownloadFilename(contentDisposition: string | null, fallbackFilenam
 }
 
 export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
+  const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const inputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -110,6 +125,41 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [inspectionResult, setInspectionResult] = useState<InspectionResult | null>(null);
   const [isInspecting, setIsInspecting] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [usage, setUsage] = useState<UsageResponse | null>(null);
+  const [isUsageLoading, setIsUsageLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function initializeAuthAndUsage() {
+      const guestId = getOrCreateGuestId();
+      const { data: sessionData } = await supabase.auth.getSession();
+
+      if (!isMounted) {
+        return;
+      }
+
+      const nextSession = sessionData.session ?? null;
+      setSession(nextSession);
+      await loadUsage(nextSession, guestId);
+    }
+
+    void initializeAuthAndUsage();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      const guestId = getOrCreateGuestId();
+      void loadUsage(nextSession, guestId);
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const clearSelection = () => {
     setSelectedFile(null);
@@ -127,8 +177,47 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
     clearSelection();
   };
 
+  const loadUsage = async (currentSession: Session | null, guestId: string) => {
+    setIsUsageLoading(true);
+
+    try {
+      const headers: Record<string, string> = {
+        "x-guest-id": guestId,
+      };
+
+      if (currentSession?.access_token) {
+        headers.Authorization = `Bearer ${currentSession.access_token}`;
+      }
+
+      const response = await fetch("/api/usage/daily", {
+        method: "GET",
+        headers,
+      });
+
+      const payload = (await response.json().catch(() => null)) as UsageResponse | null;
+
+      if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.error ?? "Failed to load usage limits.");
+      }
+
+      setUsage(payload);
+    } catch (usageError) {
+      const message = usageError instanceof Error ? usageError.message : "Failed to load usage limits.";
+      setError(message);
+    } finally {
+      setIsUsageLoading(false);
+    }
+  };
+
   const handleConvert = async () => {
-    if (!selectedFile || isConverting || isInspecting || !inspectionResult?.withinFreeLimit) {
+    if (
+      !selectedFile ||
+      isConverting ||
+      isInspecting ||
+      !inspectionResult?.withinFreeLimit ||
+      !usage ||
+      usage.isLimitReached
+    ) {
       return;
     }
 
@@ -170,6 +259,27 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
       anchor.remove();
       URL.revokeObjectURL(objectUrl);
 
+      const guestId = getOrCreateGuestId();
+      const usageHeaders: Record<string, string> = {
+        "x-guest-id": guestId,
+      };
+
+      if (session?.access_token) {
+        usageHeaders.Authorization = `Bearer ${session.access_token}`;
+      }
+
+      const usageResponse = await fetch("/api/usage/daily", {
+        method: "POST",
+        headers: usageHeaders,
+      });
+
+      const usagePayload = (await usageResponse.json().catch(() => null)) as UsageResponse | null;
+
+      if (!usageResponse.ok || !usagePayload?.ok) {
+        throw new Error(usagePayload?.error ?? "Conversion succeeded but usage update failed.");
+      }
+
+      setUsage(usagePayload);
       setCurrentStage(t.conversionComplete);
       setStatusMessage(t.resultReady);
     } catch (convertError) {
@@ -270,11 +380,26 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   };
 
   const isConvertDisabled =
-    !selectedFile || !inspectionResult?.withinFreeLimit || isConverting || isInspecting;
+    !selectedFile || !inspectionResult?.withinFreeLimit || isConverting || isInspecting || usage?.isLimitReached;
+
+  const usageMessage = usage
+    ? `Remaining today: ${usage.remaining} / ${usage.dailyLimit}`
+    : "Loading daily usage...";
+  const limitPrompt =
+    usage?.isLimitReached && usage.identityType !== "verified_user"
+      ? "Daily limit reached. Sign up and confirm your email to unlock 10 conversions per day."
+      : usage?.isLimitReached
+        ? "You have reached your daily conversion limit. Please try again tomorrow."
+        : "";
 
   return (
     <div className="rounded-2xl border border-slate-300 bg-white p-8 shadow-sm">
       <h2 className="mb-4 text-xl font-semibold text-slate-900">{t.uploadTitle}</h2>
+
+      <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+        <p className="font-medium text-slate-900">{isUsageLoading ? "Loading daily usage..." : usageMessage}</p>
+        {limitPrompt ? <p className="mt-1 text-amber-700">{limitPrompt}</p> : null}
+      </div>
 
       <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 text-center">
         <p className="mb-4 text-base text-slate-700">{t.dragAndDrop}</p>
@@ -346,7 +471,7 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
         <button
           type="button"
           onClick={handleConvert}
-          disabled={isConvertDisabled}
+          disabled={Boolean(isConvertDisabled)}
           className={`w-full rounded-md px-5 py-2.5 text-sm font-semibold transition ${
             isConvertDisabled
               ? "pointer-events-none cursor-not-allowed bg-slate-300 text-slate-600"
