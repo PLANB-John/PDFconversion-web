@@ -407,15 +407,15 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
         : "";
 
   return (
-    <div className="mx-auto w-full max-w-4xl rounded-3xl border border-indigo-100 bg-white p-6 shadow-xl shadow-indigo-100/40 sm:p-8">
+    <div className="w-full rounded-3xl border border-violet-100 bg-white/95 p-6 shadow-xl shadow-violet-100/50 sm:p-8">
       <h2 className="mb-4 text-xl font-semibold text-slate-900">{t.uploadTitle}</h2>
 
-      <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50/60 px-4 py-3 text-sm text-slate-700">
+      <div className="mb-4 rounded-xl border border-violet-100 bg-violet-50/60 px-4 py-3 text-sm text-slate-700">
         <p className="font-medium text-slate-900">{isUsageLoading ? t.loadingDailyUsage : usageMessage}</p>
         {limitPrompt ? <p className="mt-1 text-amber-700">{limitPrompt}</p> : null}
       </div>
 
-      <div className="flex min-h-72 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-indigo-200 bg-gradient-to-b from-indigo-50 to-white p-8 text-center">
+      <div className="flex min-h-72 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-violet-200 bg-gradient-to-b from-violet-50 to-white p-8 text-center">
         <p className="mb-4 text-base text-slate-700">{t.dragAndDrop}</p>
         <input
           ref={inputRef}
@@ -427,7 +427,7 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
         />
         <label
           htmlFor={inputId}
-          className="cursor-pointer rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500"
+          className="cursor-pointer rounded-lg bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
         >
           {selectedFile ? t.chooseAnotherFile : t.chooseFile}
         </label>
