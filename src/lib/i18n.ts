@@ -69,6 +69,50 @@ type Dictionary = {
     resultReady: string;
     convertJob: string;
     completedTime: string;
+    loadingDailyUsage: string;
+    usageRemainingLabel: string;
+    usageLimitReachedGuest: string;
+    usageLimitReachedVerified: string;
+    inspectingPdf: string;
+    checkingPageCount: string;
+    inspectFailedPrefix: string;
+    inspectFailedDefault: string;
+    inspectMissingFields: string;
+    inspectWithinLimit: string;
+    inspectOverLimit: string;
+    inspectReady: string;
+    inspectBlocked: string;
+    convertButton: string;
+    benefitFastTitle: string;
+    benefitFastDescription: string;
+    benefitSecureTitle: string;
+    benefitSecureDescription: string;
+    benefitFreeTitle: string;
+    benefitFreeDescription: string;
+    benefitDeviceTitle: string;
+    benefitDeviceDescription: string;
+    howItWorksTitle: string;
+    howItWorksDescription: string;
+    stepLabel: string;
+    stepUpload: string;
+    stepConvert: string;
+    stepDownload: string;
+    usageInfoTitle: string;
+    usageInfoDescription: string;
+    guestUsageLine: string;
+    memberUsageLine: string;
+    verificationUsageLine: string;
+    reliabilityTitle: string;
+    reliabilityDescription: string;
+    reliabilityPointOne: string;
+    reliabilityPointTwo: string;
+    reliabilityPointThree: string;
+    faqTeaserTitle: string;
+    faqTeaserDescription: string;
+    faqPreviewOne: string;
+    faqPreviewTwo: string;
+    faqPreviewThree: string;
+    faqTeaserButton: string;
   };
   legal: {
     introHeading: string;
@@ -155,6 +199,50 @@ export const dictionary: Record<Locale, Dictionary> = {
       resultReady: "결과 ZIP 파일이 준비되었습니다.",
       convertJob: "변환 작업",
       completedTime: "완료 시간",
+      loadingDailyUsage: "일일 사용량을 불러오는 중...",
+      usageRemainingLabel: "오늘 남은 횟수",
+      usageLimitReachedGuest: "일일 한도에 도달했습니다. 가입 후 이메일 인증을 완료하면 하루 10회까지 이용할 수 있습니다.",
+      usageLimitReachedVerified: "오늘의 변환 한도에 도달했습니다. 내일 다시 시도해 주세요.",
+      inspectingPdf: "PDF 분석 중...",
+      checkingPageCount: "페이지 수와 무료 플랜 한도를 확인하고 있습니다...",
+      inspectFailedPrefix: "분석 실패",
+      inspectFailedDefault: "PDF를 분석하지 못했습니다. 다시 시도해 주세요.",
+      inspectMissingFields: "분석 결과에 필요한 정보가 누락되었습니다.",
+      inspectWithinLimit: "무료 플랜 한도 내의 PDF입니다.",
+      inspectOverLimit: "PDF가 무료 플랜 20페이지 한도를 초과했습니다.",
+      inspectReady: "변환 준비 완료",
+      inspectBlocked: "변환이 제한되었습니다.",
+      convertButton: "JPG ZIP으로 변환",
+      benefitFastTitle: "빠른 변환 흐름",
+      benefitFastDescription: "업로드부터 다운로드까지 필요한 단계만 남긴 간결한 변환 UX를 제공합니다.",
+      benefitSecureTitle: "안정적인 파일 처리",
+      benefitSecureDescription: "변환 목적의 파일 처리 흐름을 명확하게 제공해 안심하고 사용할 수 있습니다.",
+      benefitFreeTitle: "매일 무료 사용",
+      benefitFreeDescription: "게스트도 바로 시작할 수 있고, 계정 인증 시 사용량이 확장됩니다.",
+      benefitDeviceTitle: "멀티 디바이스 지원",
+      benefitDeviceDescription: "데스크톱과 모바일 브라우저에서 동일한 흐름으로 PDF를 JPG로 변환할 수 있습니다.",
+      howItWorksTitle: "작동 방식",
+      howItWorksDescription: "처음 사용하는 사용자도 빠르게 이해할 수 있도록 변환 단계를 단순화했습니다.",
+      stepLabel: "단계",
+      stepUpload: "PDF 파일을 업로드합니다.",
+      stepConvert: "페이지 수를 확인한 뒤 JPG ZIP 변환을 실행합니다.",
+      stepDownload: "완료된 JPG ZIP 파일을 즉시 다운로드합니다.",
+      usageInfoTitle: "사용량 및 멤버십 안내",
+      usageInfoDescription: "주요 기능은 가입 없이 사용할 수 있으며, 한도 확장이 필요할 때만 계정 등록을 고려하면 됩니다.",
+      guestUsageLine: "게스트: 하루 5회 무료 변환",
+      memberUsageLine: "인증 회원: 하루 10회 변환",
+      verificationUsageLine: "가입 후 이메일 인증을 완료하면 더 넉넉한 사용량이 적용됩니다.",
+      reliabilityTitle: "신뢰할 수 있는 변환 경험",
+      reliabilityDescription: "AlloraTools는 복잡한 기능보다 실제 문서 업무에서 필요한 변환 흐름과 안정성에 집중합니다.",
+      reliabilityPointOne: "브라우저 중심 UX로 설치 없이 바로 사용",
+      reliabilityPointTwo: "업로드, 검사, 변환, 다운로드 단계가 명확한 구조",
+      reliabilityPointThree: "반복 사용 시에도 빠르게 처리할 수 있는 경량 인터페이스",
+      faqTeaserTitle: "자주 묻는 질문",
+      faqTeaserDescription: "사용 전 가장 많이 묻는 항목을 먼저 확인해 보세요.",
+      faqPreviewOne: "PDF를 JPG로 변환하면 원본 품질은 어떻게 유지되나요?",
+      faqPreviewTwo: "무료 한도에 도달하면 어떻게 되나요?",
+      faqPreviewThree: "모바일 브라우저에서도 동일하게 사용할 수 있나요?",
+      faqTeaserButton: "FAQ 전체 보기",
     },
     legal: {
       introHeading: "개요",
@@ -242,6 +330,53 @@ export const dictionary: Record<Locale, Dictionary> = {
       resultReady: "Result ZIP is ready.",
       convertJob: "Convert job",
       completedTime: "Completed time",
+      loadingDailyUsage: "Loading daily usage...",
+      usageRemainingLabel: "Remaining today",
+      usageLimitReachedGuest:
+        "Daily limit reached. Sign up and confirm your email to unlock 10 conversions per day.",
+      usageLimitReachedVerified: "You have reached your daily conversion limit. Please try again tomorrow.",
+      inspectingPdf: "Inspecting PDF...",
+      checkingPageCount: "Checking page count and free plan limit...",
+      inspectFailedPrefix: "Inspection failed",
+      inspectFailedDefault: "Failed to inspect this PDF. Please try again.",
+      inspectMissingFields: "Inspection response is missing required fields.",
+      inspectWithinLimit: "PDF is within the free plan limit.",
+      inspectOverLimit: "PDF exceeds the free plan limit of 20 pages.",
+      inspectReady: "Ready for conversion.",
+      inspectBlocked: "Conversion blocked.",
+      convertButton: "Convert to JPG ZIP",
+      benefitFastTitle: "Fast conversion flow",
+      benefitFastDescription: "A focused workflow helps you go from upload to download with fewer steps.",
+      benefitSecureTitle: "Secure handling",
+      benefitSecureDescription: "The page clearly communicates practical file-handling steps for everyday use.",
+      benefitFreeTitle: "Free daily usage",
+      benefitFreeDescription: "Start as a guest, then unlock more conversions after account verification.",
+      benefitDeviceTitle: "Works across devices",
+      benefitDeviceDescription: "Convert PDF pages to JPG from desktop and mobile browsers with the same flow.",
+      howItWorksTitle: "How it works",
+      howItWorksDescription: "The process is designed to be easy to scan and complete in minutes.",
+      stepLabel: "Step",
+      stepUpload: "Upload your PDF file.",
+      stepConvert: "Confirm page limits, then run the JPG ZIP conversion.",
+      stepDownload: "Download the generated JPG ZIP file.",
+      usageInfoTitle: "Usage and membership",
+      usageInfoDescription:
+        "The tool stays primary. Account signup only becomes important when you need additional daily usage.",
+      guestUsageLine: "Guest users: 5 free conversions per day",
+      memberUsageLine: "Verified members: 10 conversions per day",
+      verificationUsageLine: "Create an account and verify your email to unlock the higher daily limit.",
+      reliabilityTitle: "Built for reliable day-to-day use",
+      reliabilityDescription:
+        "AlloraTools focuses on practical PDF conversion workflows with a clean browser-first experience.",
+      reliabilityPointOne: "Browser-friendly flow with no software installation required",
+      reliabilityPointTwo: "Clear upload, inspection, conversion, and download stages",
+      reliabilityPointThree: "Lightweight interface that stays fast across repeated conversions",
+      faqTeaserTitle: "Quick FAQ",
+      faqTeaserDescription: "Review common questions before starting your next conversion.",
+      faqPreviewOne: "How does PDF to JPG quality compare to the original PDF?",
+      faqPreviewTwo: "What happens when I hit the free daily limit?",
+      faqPreviewThree: "Can I use this tool on mobile browsers?",
+      faqTeaserButton: "View full FAQ",
     },
     legal: {
       introHeading: "Overview",
@@ -331,6 +466,52 @@ export const dictionary: Record<Locale, Dictionary> = {
       resultReady: "結果のZIPファイルが準備できました。",
       convertJob: "変換ジョブ",
       completedTime: "完了時刻",
+      loadingDailyUsage: "1日の利用状況を読み込み中...",
+      usageRemainingLabel: "本日の残り回数",
+      usageLimitReachedGuest:
+        "1日の上限に達しました。サインアップしてメール認証を完了すると、1日10回まで利用できます。",
+      usageLimitReachedVerified: "本日の変換上限に達しました。明日もう一度お試しください。",
+      inspectingPdf: "PDFを確認中...",
+      checkingPageCount: "ページ数と無料プラン上限を確認しています...",
+      inspectFailedPrefix: "確認に失敗しました",
+      inspectFailedDefault: "このPDFを確認できませんでした。もう一度お試しください。",
+      inspectMissingFields: "確認結果に必要な情報が不足しています。",
+      inspectWithinLimit: "このPDFは無料プランの上限内です。",
+      inspectOverLimit: "このPDFは無料プランの20ページ上限を超えています。",
+      inspectReady: "変換準備ができました。",
+      inspectBlocked: "変換は制限されています。",
+      convertButton: "JPG ZIPに変換",
+      benefitFastTitle: "高速な変換フロー",
+      benefitFastDescription: "アップロードからダウンロードまで、必要な操作だけに絞った構成です。",
+      benefitSecureTitle: "安心できる処理導線",
+      benefitSecureDescription: "日常業務で使いやすい、わかりやすいファイル処理ステップを提供します。",
+      benefitFreeTitle: "毎日無料で利用可能",
+      benefitFreeDescription: "ゲストでもすぐ開始でき、認証済みアカウントで利用枠を拡張できます。",
+      benefitDeviceTitle: "マルチデバイス対応",
+      benefitDeviceDescription: "PC・スマートフォンのブラウザで同じ操作感のまま利用できます。",
+      howItWorksTitle: "使い方",
+      howItWorksDescription: "初めてでもすぐ理解できるように、変換の流れを3ステップで整理しました。",
+      stepLabel: "ステップ",
+      stepUpload: "PDFファイルをアップロードします。",
+      stepConvert: "ページ上限を確認して、JPG ZIP変換を実行します。",
+      stepDownload: "生成されたJPG ZIPファイルをダウンロードします。",
+      usageInfoTitle: "利用枠とメンバーシップ",
+      usageInfoDescription: "ツール利用を最優先にし、追加利用が必要なときだけ登録を案内する設計です。",
+      guestUsageLine: "ゲスト: 1日5回まで無料変換",
+      memberUsageLine: "認証済みメンバー: 1日10回まで変換",
+      verificationUsageLine: "サインアップ後にメール認証を完了すると、より多く利用できます。",
+      reliabilityTitle: "実務向けの信頼できる体験",
+      reliabilityDescription:
+        "AlloraTools は、複雑さよりも実用性を重視したPDF変換ワークフローを提供します。",
+      reliabilityPointOne: "インストール不要でブラウザからすぐ利用可能",
+      reliabilityPointTwo: "アップロード・確認・変換・ダウンロードを明確に分離",
+      reliabilityPointThree: "繰り返し作業でも使いやすい軽量インターフェース",
+      faqTeaserTitle: "よくある質問",
+      faqTeaserDescription: "利用前によく確認されるポイントを先にチェックできます。",
+      faqPreviewOne: "PDFをJPGに変換すると画質はどのように変わりますか？",
+      faqPreviewTwo: "無料上限に達した場合はどうなりますか？",
+      faqPreviewThree: "スマートフォンのブラウザでも利用できますか？",
+      faqTeaserButton: "FAQをすべて見る",
     },
     legal: {
       introHeading: "概要",
@@ -425,6 +606,53 @@ export const dictionary: Record<Locale, Dictionary> = {
       resultReady: "El ZIP de resultados está listo.",
       convertJob: "Trabajo de conversión",
       completedTime: "Hora de finalización",
+      loadingDailyUsage: "Cargando uso diario...",
+      usageRemainingLabel: "Disponible hoy",
+      usageLimitReachedGuest:
+        "Se alcanzó el límite diario. Regístrate y confirma tu correo para desbloquear 10 conversiones por día.",
+      usageLimitReachedVerified: "Ya alcanzaste tu límite diario de conversiones. Inténtalo de nuevo mañana.",
+      inspectingPdf: "Analizando PDF...",
+      checkingPageCount: "Revisando cantidad de páginas y límite del plan gratuito...",
+      inspectFailedPrefix: "Error de análisis",
+      inspectFailedDefault: "No se pudo analizar este PDF. Inténtalo de nuevo.",
+      inspectMissingFields: "La respuesta del análisis no incluye todos los datos necesarios.",
+      inspectWithinLimit: "El PDF está dentro del límite del plan gratuito.",
+      inspectOverLimit: "El PDF supera el límite de 20 páginas del plan gratuito.",
+      inspectReady: "Listo para convertir.",
+      inspectBlocked: "Conversión bloqueada.",
+      convertButton: "Convertir a ZIP JPG",
+      benefitFastTitle: "Conversión rápida",
+      benefitFastDescription: "Un flujo directo te lleva de la carga a la descarga con menos clics.",
+      benefitSecureTitle: "Gestión segura",
+      benefitSecureDescription: "La interfaz explica claramente cada etapa para un uso confiable.",
+      benefitFreeTitle: "Uso gratuito diario",
+      benefitFreeDescription: "Empieza como invitado y amplía tus conversiones con una cuenta verificada.",
+      benefitDeviceTitle: "Compatible con varios dispositivos",
+      benefitDeviceDescription: "Funciona en navegadores de escritorio y móviles con la misma experiencia.",
+      howItWorksTitle: "Cómo funciona",
+      howItWorksDescription: "El proceso está organizado para que puedas escanearlo y completarlo rápidamente.",
+      stepLabel: "Paso",
+      stepUpload: "Sube tu archivo PDF.",
+      stepConvert: "Confirma el límite de páginas y ejecuta la conversión a ZIP JPG.",
+      stepDownload: "Descarga el archivo ZIP JPG generado.",
+      usageInfoTitle: "Uso y membresía",
+      usageInfoDescription:
+        "La herramienta sigue siendo lo principal. El registro solo se vuelve importante cuando necesitas más uso diario.",
+      guestUsageLine: "Invitados: 5 conversiones gratis por día",
+      memberUsageLine: "Miembros verificados: 10 conversiones por día",
+      verificationUsageLine: "Regístrate y verifica tu correo para desbloquear el límite diario superior.",
+      reliabilityTitle: "Experiencia confiable para trabajo real",
+      reliabilityDescription:
+        "AlloraTools prioriza flujos prácticos de conversión PDF con una experiencia clara en el navegador.",
+      reliabilityPointOne: "Uso directo en navegador, sin instalar software",
+      reliabilityPointTwo: "Etapas claras de carga, revisión, conversión y descarga",
+      reliabilityPointThree: "Interfaz ligera que se mantiene rápida en usos repetidos",
+      faqTeaserTitle: "FAQ rápida",
+      faqTeaserDescription: "Consulta las preguntas más comunes antes de convertir.",
+      faqPreviewOne: "¿Cómo se mantiene la calidad al convertir PDF a JPG?",
+      faqPreviewTwo: "¿Qué pasa cuando llego al límite diario gratuito?",
+      faqPreviewThree: "¿Puedo usar la herramienta desde el móvil?",
+      faqTeaserButton: "Ver FAQ completa",
     },
     legal: {
       introHeading: "Resumen",
@@ -519,6 +747,54 @@ export const dictionary: Record<Locale, Dictionary> = {
       resultReady: "Die Ergebnis-ZIP ist bereit.",
       convertJob: "Konvertierungsjob",
       completedTime: "Abschlusszeit",
+      loadingDailyUsage: "Tägliche Nutzung wird geladen...",
+      usageRemainingLabel: "Heute verbleibend",
+      usageLimitReachedGuest:
+        "Tageslimit erreicht. Registriere dich und bestätige deine E-Mail, um 10 Konvertierungen pro Tag freizuschalten.",
+      usageLimitReachedVerified:
+        "Du hast dein tägliches Konvertierungslimit erreicht. Bitte versuche es morgen erneut.",
+      inspectingPdf: "PDF wird geprüft...",
+      checkingPageCount: "Seitenanzahl und Free-Plan-Limit werden geprüft...",
+      inspectFailedPrefix: "Prüfung fehlgeschlagen",
+      inspectFailedDefault: "Dieses PDF konnte nicht geprüft werden. Bitte versuche es erneut.",
+      inspectMissingFields: "In der Prüfantwort fehlen erforderliche Felder.",
+      inspectWithinLimit: "Das PDF liegt innerhalb des Free-Plan-Limits.",
+      inspectOverLimit: "Das PDF überschreitet das Free-Plan-Limit von 20 Seiten.",
+      inspectReady: "Bereit zur Konvertierung.",
+      inspectBlocked: "Konvertierung blockiert.",
+      convertButton: "In JPG-ZIP konvertieren",
+      benefitFastTitle: "Schneller Konvertierungsablauf",
+      benefitFastDescription: "Ein fokussierter Ablauf bringt dich mit wenigen Schritten von Upload zu Download.",
+      benefitSecureTitle: "Verlässliche Verarbeitung",
+      benefitSecureDescription: "Die Oberfläche zeigt klare Dateischritte für einen sicheren täglichen Einsatz.",
+      benefitFreeTitle: "Täglich kostenlos nutzbar",
+      benefitFreeDescription: "Starte als Gast und erweitere dein Kontingent nach E-Mail-Verifizierung.",
+      benefitDeviceTitle: "Auf allen Geräten nutzbar",
+      benefitDeviceDescription: "Desktop- und Mobile-Browser bieten denselben PDF-zu-JPG-Workflow.",
+      howItWorksTitle: "So funktioniert es",
+      howItWorksDescription: "Der Ablauf ist leicht erfassbar und in wenigen Minuten abgeschlossen.",
+      stepLabel: "Schritt",
+      stepUpload: "PDF-Datei hochladen.",
+      stepConvert: "Seitenlimit prüfen und die JPG-ZIP-Konvertierung starten.",
+      stepDownload: "Erzeugte JPG-ZIP-Datei herunterladen.",
+      usageInfoTitle: "Nutzung und Mitgliedschaft",
+      usageInfoDescription:
+        "Das Tool bleibt im Mittelpunkt. Registrierung wird erst wichtig, wenn du mehr tägliche Nutzung brauchst.",
+      guestUsageLine: "Gäste: 5 kostenlose Konvertierungen pro Tag",
+      memberUsageLine: "Verifizierte Mitglieder: 10 Konvertierungen pro Tag",
+      verificationUsageLine: "Konto erstellen und E-Mail bestätigen, um das höhere Tageslimit freizuschalten.",
+      reliabilityTitle: "Zuverlässig für den Alltag",
+      reliabilityDescription:
+        "AlloraTools konzentriert sich auf praktische PDF-Konvertierung mit einer klaren Browser-First-Erfahrung.",
+      reliabilityPointOne: "Browserfreundlicher Ablauf ohne Softwareinstallation",
+      reliabilityPointTwo: "Klare Phasen für Upload, Prüfung, Konvertierung und Download",
+      reliabilityPointThree: "Leichte Oberfläche mit schneller Bedienung bei wiederholter Nutzung",
+      faqTeaserTitle: "Kurze FAQ",
+      faqTeaserDescription: "Sieh dir häufige Fragen an, bevor du konvertierst.",
+      faqPreviewOne: "Wie bleibt die Qualität bei PDF-zu-JPG erhalten?",
+      faqPreviewTwo: "Was passiert, wenn ich das tägliche Free-Limit erreiche?",
+      faqPreviewThree: "Kann ich das Tool auch mobil nutzen?",
+      faqTeaserButton: "Komplette FAQ anzeigen",
     },
     legal: {
       introHeading: "Überblick",

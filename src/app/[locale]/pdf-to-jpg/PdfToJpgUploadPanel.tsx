@@ -42,6 +42,20 @@ type PdfToJpgCopy = {
   resultReady: string;
   convertJob: string;
   completedTime: string;
+  loadingDailyUsage: string;
+  usageRemainingLabel: string;
+  usageLimitReachedGuest: string;
+  usageLimitReachedVerified: string;
+  inspectingPdf: string;
+  checkingPageCount: string;
+  inspectFailedPrefix: string;
+  inspectFailedDefault: string;
+  inspectMissingFields: string;
+  inspectWithinLimit: string;
+  inspectOverLimit: string;
+  inspectReady: string;
+  inspectBlocked: string;
+  convertButton: string;
 };
 
 type PdfToJpgUploadPanelProps = {
@@ -197,12 +211,12 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
       const payload = (await response.json().catch(() => null)) as UsageResponse | null;
 
       if (!response.ok || !payload?.ok) {
-        throw new Error(payload?.error ?? "Failed to load usage limits.");
+        throw new Error(payload?.error ?? t.loadingDailyUsage);
       }
 
       setUsage(payload);
     } catch (usageError) {
-      const message = usageError instanceof Error ? usageError.message : "Failed to load usage limits.";
+      const message = usageError instanceof Error ? usageError.message : t.loadingDailyUsage;
       setError(message);
     } finally {
       setIsUsageLoading(false);
@@ -323,8 +337,8 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
 
   const inspectSelectedPdf = async (file: File) => {
     setIsInspecting(true);
-    setCurrentStage("Inspecting PDF...");
-    setStatusMessage("Checking page count and free plan limit...");
+    setCurrentStage(t.inspectingPdf);
+    setStatusMessage(t.checkingPageCount);
     setInspectionResult(null);
 
     try {
@@ -339,7 +353,7 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
       const payload = (await response.json().catch(() => null)) as InspectResponse | null;
 
       if (!response.ok || !payload?.ok) {
-        throw new Error(payload?.error ?? payload?.message ?? "Failed to inspect this PDF.");
+        throw new Error(payload?.error ?? payload?.message ?? t.inspectFailedDefault);
       }
 
       if (
@@ -347,7 +361,7 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
         typeof payload.withinFreeLimit !== "boolean" ||
         typeof payload.size !== "number"
       ) {
-        throw new Error("Inspection response is missing required fields.");
+        throw new Error(t.inspectMissingFields);
       }
 
       const nextInspectionResult: InspectionResult = {
@@ -358,19 +372,19 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
         message:
           payload.message ??
           (payload.withinFreeLimit
-            ? "PDF is within the free plan limit."
-            : "PDF exceeds the free plan limit of 20 pages."),
+            ? t.inspectWithinLimit
+            : t.inspectOverLimit),
       };
 
       setInspectionResult(nextInspectionResult);
-      setCurrentStage(payload.withinFreeLimit ? "Ready for conversion." : "Conversion blocked.");
+      setCurrentStage(payload.withinFreeLimit ? t.inspectReady : t.inspectBlocked);
       setStatusMessage(nextInspectionResult.message);
     } catch (inspectionError) {
       const message =
         inspectionError instanceof Error
           ? inspectionError.message
-          : "Inspection failed. Please try again.";
-      setError(`Inspection failed: ${message}`);
+          : t.inspectFailedDefault;
+      setError(`${t.inspectFailedPrefix}: ${message}`);
       setCurrentStage(null);
       setStatusMessage("");
       setInspectionResult(null);
@@ -383,25 +397,25 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
     !selectedFile || !inspectionResult?.withinFreeLimit || isConverting || isInspecting || usage?.isLimitReached;
 
   const usageMessage = usage
-    ? `Remaining today: ${usage.remaining} / ${usage.dailyLimit}`
-    : "Loading daily usage...";
+    ? `${t.usageRemainingLabel}: ${usage.remaining} / ${usage.dailyLimit}`
+    : t.loadingDailyUsage;
   const limitPrompt =
     usage?.isLimitReached && usage.identityType !== "verified_user"
-      ? "Daily limit reached. Sign up and confirm your email to unlock 10 conversions per day."
+      ? t.usageLimitReachedGuest
       : usage?.isLimitReached
-        ? "You have reached your daily conversion limit. Please try again tomorrow."
+        ? t.usageLimitReachedVerified
         : "";
 
   return (
-    <div className="rounded-2xl border border-slate-300 bg-white p-8 shadow-sm">
+    <div className="mx-auto w-full max-w-4xl rounded-3xl border border-indigo-100 bg-white p-6 shadow-xl shadow-indigo-100/40 sm:p-8">
       <h2 className="mb-4 text-xl font-semibold text-slate-900">{t.uploadTitle}</h2>
 
-      <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-        <p className="font-medium text-slate-900">{isUsageLoading ? "Loading daily usage..." : usageMessage}</p>
+      <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50/60 px-4 py-3 text-sm text-slate-700">
+        <p className="font-medium text-slate-900">{isUsageLoading ? t.loadingDailyUsage : usageMessage}</p>
         {limitPrompt ? <p className="mt-1 text-amber-700">{limitPrompt}</p> : null}
       </div>
 
-      <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+      <div className="flex min-h-72 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-indigo-200 bg-gradient-to-b from-indigo-50 to-white p-8 text-center">
         <p className="mb-4 text-base text-slate-700">{t.dragAndDrop}</p>
         <input
           ref={inputRef}
@@ -413,7 +427,7 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
         />
         <label
           htmlFor={inputId}
-          className="cursor-pointer rounded-md bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+          className="cursor-pointer rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500"
         >
           {selectedFile ? t.chooseAnotherFile : t.chooseFile}
         </label>
@@ -421,7 +435,7 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
         {error ? <p className="mt-4 text-sm font-medium text-red-600">{error}</p> : null}
 
         {selectedFile ? (
-          <div className="mt-4 w-full max-w-md rounded-lg border border-slate-200 bg-white p-4 text-left">
+          <div className="mt-4 w-full max-w-md rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm">
             <p className="text-sm font-medium text-slate-900">
               {t.selectedFile}: {selectedFile.name}
             </p>
@@ -478,7 +492,7 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
               : "cursor-pointer bg-emerald-700 text-white hover:bg-emerald-600"
           }`}
         >
-          {isInspecting ? "Inspecting PDF..." : "Convert to JPG ZIP"}
+          {isInspecting ? t.inspectingPdf : t.convertButton}
         </button>
 
         {currentStage ? <p className="text-center text-sm font-medium text-slate-700">{currentStage}</p> : null}
