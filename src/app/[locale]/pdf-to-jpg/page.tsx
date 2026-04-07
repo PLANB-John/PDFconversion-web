@@ -9,7 +9,8 @@ type PdfToJpgPageProps = {
 
 export default async function PdfToJpgPage({ params }: PdfToJpgPageProps) {
   const { locale } = await params;
-  const t = dictionary[locale].pdfToJpg;
+  const pageCopy = dictionary[locale];
+  const t = pageCopy.pdfToJpg;
 
   const benefitItems = [
     {
@@ -75,7 +76,7 @@ export default async function PdfToJpgPage({ params }: PdfToJpgPageProps) {
             href={`/${locale}/pdf-to-jpg`}
             className="inline-flex rounded-xl border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 transition hover:bg-violet-100"
           >
-            {t.pdfToJpgCtaButton}
+            {pageCopy.pdfToJpgCtaButton}
           </Link>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

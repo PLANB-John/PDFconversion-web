@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ChangeEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 
 import { getOrCreateGuestId } from "@/lib/guestId";
@@ -143,6 +143,38 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   const [usage, setUsage] = useState<UsageResponse | null>(null);
   const [isUsageLoading, setIsUsageLoading] = useState(true);
 
+  const loadUsage = useCallback(async (currentSession: Session | null, guestId: string) => {
+    setIsUsageLoading(true);
+
+    try {
+      const headers: Record<string, string> = {
+        "x-guest-id": guestId,
+      };
+
+      if (currentSession?.access_token) {
+        headers.Authorization = `Bearer ${currentSession.access_token}`;
+      }
+
+      const response = await fetch("/api/usage/daily", {
+        method: "GET",
+        headers,
+      });
+
+      const payload = (await response.json().catch(() => null)) as UsageResponse | null;
+
+      if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.error ?? t.loadingDailyUsage);
+      }
+
+      setUsage(payload);
+    } catch (usageError) {
+      const message = usageError instanceof Error ? usageError.message : t.loadingDailyUsage;
+      setError(message);
+    } finally {
+      setIsUsageLoading(false);
+    }
+  }, [t.loadingDailyUsage]);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -173,7 +205,7 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, loadUsage]);
 
   const clearSelection = () => {
     setSelectedFile(null);
@@ -189,38 +221,6 @@ export function PdfToJpgUploadPanel({ t }: PdfToJpgUploadPanelProps) {
   const resetSelection = () => {
     setError("");
     clearSelection();
-  };
-
-  const loadUsage = async (currentSession: Session | null, guestId: string) => {
-    setIsUsageLoading(true);
-
-    try {
-      const headers: Record<string, string> = {
-        "x-guest-id": guestId,
-      };
-
-      if (currentSession?.access_token) {
-        headers.Authorization = `Bearer ${currentSession.access_token}`;
-      }
-
-      const response = await fetch("/api/usage/daily", {
-        method: "GET",
-        headers,
-      });
-
-      const payload = (await response.json().catch(() => null)) as UsageResponse | null;
-
-      if (!response.ok || !payload?.ok) {
-        throw new Error(payload?.error ?? t.loadingDailyUsage);
-      }
-
-      setUsage(payload);
-    } catch (usageError) {
-      const message = usageError instanceof Error ? usageError.message : t.loadingDailyUsage;
-      setError(message);
-    } finally {
-      setIsUsageLoading(false);
-    }
   };
 
   const handleConvert = async () => {
