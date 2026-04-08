@@ -37,25 +37,48 @@ export const infoDocuments: Record<Locale, InfoDocuments> = {
   ko: {
     about: {
       title: "AlloraTools 소개",
-      intro: "AlloraTools는 누구나 브라우저에서 바로 사용할 수 있는 웹 기반 파일/유틸리티 도구 서비스입니다.",
+      intro:
+        "AlloraTools는 브라우저에서 바로 문서·파일 작업을 처리할 수 있도록 만든 웹 기반 유틸리티 서비스입니다. 가입 없이도 바로 시작할 수 있지만, 계정을 사용하면 더 안정적이고 연속적인 사용 경험을 제공합니다.",
       sections: [
         {
-          title: "서비스 소개",
+          title: "AlloraTools가 하는 일",
           paragraphs: [
-            "현재 핵심 기능은 PDF to JPG 변환으로, PDF 문서를 이미지로 빠르게 바꿀 수 있도록 설계되어 있습니다.",
-            "불필요한 복잡함 없이 간단하고 직관적인 도구 경험을 제공하는 것을 목표로 합니다.",
+            "AlloraTools는 파일/문서 작업에서 자주 발생하는 반복 작업을 웹에서 간단히 처리할 수 있도록 설계되었습니다.",
+            "소프트웨어 설치나 복잡한 설정 없이, 필요한 작업을 빠르게 끝낼 수 있는 실용적인 도구 경험을 지향합니다.",
+            "서비스 성격은 대규모 플랫폼보다는 현실적인 문제 해결에 집중한 개인 운영형 웹 유틸리티입니다.",
           ],
         },
         {
-          title: "앞으로의 방향",
+          title: "현재 핵심 기능: PDF to JPG",
           paragraphs: [
-            "AlloraTools는 실제로 자주 필요한 온라인 작업을 중심으로 도구를 점진적으로 추가해 나갈 예정입니다.",
-            "접근성, 사용성, 실용성을 기준으로 기능을 확장하겠습니다.",
+            "현재 메인 기능은 PDF 파일의 각 페이지를 JPG 이미지로 변환하는 기능입니다.",
+            "문서 내용을 이미지로 공유하거나, 페이지 단위로 다뤄야 하는 작업을 더 쉽게 처리할 수 있도록 구성했습니다.",
+            "작업 흐름은 가능한 한 짧고 명확하게 유지해 처음 사용하는 사용자도 부담 없이 사용할 수 있게 했습니다.",
           ],
         },
         {
-          title: "운영 정보",
-          bullets: ["운영자명: PLANB-John", "운영 형태: 개인 운영", "도메인: https://www.alloratools.com"],
+          title: "누구를 위한 서비스인지",
+          paragraphs: [
+            "학생, 사무직, 프리랜서, 소규모 팀처럼 문서 변환이 자주 필요한 사용자를 주요 대상으로 생각하고 있습니다.",
+            "특정 직군에 한정하기보다, 빠르게 결과가 필요한 일반 사용자까지 폭넓게 사용할 수 있도록 접근성을 우선합니다.",
+            "다국어 지원을 통해 언어 장벽을 낮추고, 어디서든 동일한 사용 흐름을 제공하는 것을 목표로 합니다.",
+          ],
+        },
+        {
+          title: "제품 원칙과 계정 모델",
+          paragraphs: [
+            "AlloraTools는 단순함, 접근성, 사용성, 신뢰 가능한 기본 경험을 제품의 핵심 원칙으로 삼고 있습니다.",
+            "게스트 사용을 허용하는 이유는 누구나 즉시 기능을 시험하고 필요한 작업을 바로 처리할 수 있게 하기 위해서입니다.",
+            "동시에 로그인 및 이메일 인증 사용자는 더 높은 무료 사용 한도를 제공해 반복 사용 시에도 끊김이 적은 경험을 받을 수 있습니다.",
+          ],
+        },
+        {
+          title: "운영 정보와 향후 방향",
+          paragraphs: [
+            "AlloraTools는 PLANB-John이 개인 형태로 운영하는 서비스이며, 운영 도메인은 https://www.alloratools.com 입니다.",
+            "서비스는 실제 사용 과정에서 확인되는 필요를 바탕으로 점진적으로 개선·확장되고 있습니다.",
+            "장기적으로는 PDF 변환을 시작점으로, 문서·파일 작업 전반을 지원하는 멀티 툴 플랫폼으로 발전시키는 것을 목표로 합니다.",
+          ],
         },
       ],
     },
@@ -88,25 +111,48 @@ export const infoDocuments: Record<Locale, InfoDocuments> = {
   en: {
     about: {
       title: "About AlloraTools",
-      intro: "AlloraTools is a web-based file and utility service designed to be easy to use directly in your browser.",
+      intro:
+        "AlloraTools is a web-based file and document utility service built for quick tasks directly in the browser. You can start as a guest without signing up, while account users get a more continuous usage experience.",
       sections: [
         {
-          title: "What the service does",
+          title: "What AlloraTools is",
           paragraphs: [
-            "Our current core feature is PDF to JPG conversion, making it simple to turn PDF pages into image files.",
-            "We focus on practical tools with a clean, straightforward experience.",
+            "AlloraTools focuses on practical file and document workflows that people need in day-to-day work and study.",
+            "The service is designed to reduce setup friction and help users complete common tasks without installing additional software.",
+            "It is an individually operated web utility service with a product direction centered on usefulness and clarity.",
           ],
         },
         {
-          title: "What comes next",
+          title: "Current core feature: PDF to JPG",
           paragraphs: [
-            "Over time, AlloraTools may add more online utilities based on real user needs.",
-            "We prioritize simplicity, accessibility, and day-to-day usefulness.",
+            "The main feature today converts PDF pages into JPG images in a simple browser flow.",
+            "This is useful when users need to share pages as images, extract visual content, or handle documents page by page.",
+            "The workflow is intentionally straightforward so first-time users can complete conversions quickly.",
           ],
         },
         {
-          title: "Operator information",
-          bullets: ["Operator: PLANB-John", "Operation type: individual operator", "Domain: https://www.alloratools.com"],
+          title: "Who the service is for",
+          paragraphs: [
+            "AlloraTools is intended for students, office workers, freelancers, and anyone who needs quick document conversion.",
+            "It is built for both occasional users who need one fast result and repeat users who process files more regularly.",
+            "Multilingual support helps keep the service usable for people across different language preferences.",
+          ],
+        },
+        {
+          title: "Product principles and account model",
+          paragraphs: [
+            "The product is guided by simplicity, accessibility, usability, and a stable, trustworthy user experience.",
+            "Guest access exists so users can begin immediately without unnecessary barriers.",
+            "Signed-in users with verified email receive a higher free usage limit, which supports more consistent ongoing use.",
+          ],
+        },
+        {
+          title: "Operator information and direction",
+          paragraphs: [
+            "AlloraTools is operated by PLANB-John as an individually run service at https://www.alloratools.com.",
+            "Development is iterative and based on practical needs observed from actual usage.",
+            "Over time, the service aims to expand from PDF conversion into a broader multi-tool platform for file and document utilities.",
+          ],
         },
       ],
     },
@@ -139,25 +185,48 @@ export const infoDocuments: Record<Locale, InfoDocuments> = {
   ja: {
     about: {
       title: "AlloraToolsについて",
-      intro: "AlloraToolsは、ブラウザから手軽に使えるWebベースのファイル/ユーティリティサービスです。",
+      intro:
+        "AlloraToolsは、ブラウザで文書・ファイル作業をすばやく行うためのWebベースのユーティリティサービスです。ゲストとして登録なしで利用を開始でき、アカウント利用時には継続利用しやすい設計になっています。",
       sections: [
         {
-          title: "サービス概要",
+          title: "AlloraToolsとは",
           paragraphs: [
-            "現在の主要機能はPDF to JPG変換で、PDFページを画像として扱いやすく変換できます。",
-            "複雑さを減らし、シンプルで実用的な体験を重視しています。",
+            "AlloraToolsは、日常的に発生する文書・ファイル処理をオンラインで扱いやすくすることを目的としたサービスです。",
+            "追加ソフトのインストールや複雑な手順をできるだけ減らし、必要な作業を短い流れで完了できるようにしています。",
+            "個人運営のサービスとして、過度な拡大よりも実用性と継続的な改善を重視しています。",
           ],
         },
         {
-          title: "今後について",
+          title: "現在の主機能：PDF to JPG変換",
           paragraphs: [
-            "AlloraToolsでは、実際の利用ニーズに合わせてオンラインツールを段階的に追加していく予定です。",
-            "アクセシビリティと使いやすさを大切にしながら改善を続けます。",
+            "現在の中心機能は、PDFの各ページをJPG画像に変換する機能です。",
+            "文書を画像として共有したい場面や、ページ単位で扱いたい作業に使いやすいよう構成しています。",
+            "初めて使う方でも迷いにくいよう、操作フローはシンプルで分かりやすい形を目指しています。",
           ],
         },
         {
-          title: "運営情報",
-          bullets: ["運営者名: PLANB-John", "運営形態: 個人運営", "ドメイン: https://www.alloratools.com"],
+          title: "どのようなユーザー向けか",
+          paragraphs: [
+            "学生、オフィスワーカー、フリーランスなど、文書変換を日常的に行うユーザーを主な対象にしています。",
+            "一度だけ使いたいユーザーにも、継続的に使いたいユーザーにも対応できる設計を意識しています。",
+            "多言語対応により、言語環境の異なるユーザーでも同じ品質で利用できることを大切にしています。",
+          ],
+        },
+        {
+          title: "設計方針とアカウント利用",
+          paragraphs: [
+            "AlloraToolsは、シンプルさ・アクセシビリティ・使いやすさ・信頼しやすい体験を基本方針としています。",
+            "ゲスト利用を可能にしているのは、登録前でもすぐに機能を試して必要な作業を進められるようにするためです。",
+            "一方で、ログイン済みかつメール認証済みのユーザーには無料利用上限を高めに設定し、継続利用時の利便性を高めています。",
+          ],
+        },
+        {
+          title: "運営情報と今後の方向性",
+          paragraphs: [
+            "AlloraToolsはPLANB-Johnが個人で運営しており、運営ドメインは https://www.alloratools.com です。",
+            "改善は実際の利用状況や要望をもとに段階的に進めています。",
+            "長期的には、PDF変換を出発点として、文書・ファイル関連の複数ツールを提供するプラットフォームへ拡張していく予定です。",
+          ],
         },
       ],
     },
@@ -190,25 +259,48 @@ export const infoDocuments: Record<Locale, InfoDocuments> = {
   es: {
     about: {
       title: "Acerca de AlloraTools",
-      intro: "AlloraTools es un servicio web de utilidades y archivos pensado para usarse fácilmente desde el navegador.",
+      intro:
+        "AlloraTools es una plataforma web de utilidades para archivos y documentos, diseñada para resolver tareas rápidas desde el navegador. Se puede usar como invitado sin registro, y las cuentas permiten una experiencia de uso más continua.",
       sections: [
         {
-          title: "Qué ofrece el servicio",
+          title: "Qué es AlloraTools",
           paragraphs: [
-            "La función principal actual es la conversión de PDF a JPG, para transformar páginas PDF en imágenes de forma sencilla.",
-            "Nos enfocamos en herramientas prácticas con una experiencia clara y sin complicaciones.",
+            "AlloraTools está enfocado en tareas prácticas de manejo de archivos y documentos que aparecen en el trabajo y en el estudio diario.",
+            "La idea central es reducir fricción: evitar instalaciones adicionales y permitir completar procesos comunes con pocos pasos.",
+            "Es un servicio web operado de forma individual, con una dirección de producto basada en utilidad real.",
           ],
         },
         {
-          title: "Próximos pasos",
+          title: "Función principal actual: PDF a JPG",
           paragraphs: [
-            "Con el tiempo, AlloraTools podrá incorporar más utilidades en línea según las necesidades reales de los usuarios.",
-            "Priorizamos simplicidad, accesibilidad y utilidad diaria.",
+            "La función principal hoy convierte páginas de PDF en imágenes JPG mediante un flujo sencillo en el navegador.",
+            "Resulta útil para compartir páginas como imágenes, extraer contenido visual o trabajar documento por documento en formato de imagen.",
+            "El proceso se mantiene claro y directo para que incluso usuarios nuevos puedan terminar la conversión sin complicaciones.",
           ],
         },
         {
-          title: "Información del operador",
-          bullets: ["Operador: PLANB-John", "Tipo de operación: operador individual", "Dominio: https://www.alloratools.com"],
+          title: "Para quién está pensado",
+          paragraphs: [
+            "Está pensado para estudiantes, profesionales de oficina, freelancers y cualquier persona que necesite conversiones rápidas de documentos.",
+            "Busca servir tanto a quien lo usa de forma ocasional como a quien realiza tareas repetidas con más frecuencia.",
+            "El soporte multilingüe ayuda a mantener una experiencia usable para personas con diferentes preferencias de idioma.",
+          ],
+        },
+        {
+          title: "Principios del producto y modelo de cuenta",
+          paragraphs: [
+            "El producto se guía por principios de simplicidad, accesibilidad, usabilidad y una experiencia estable y confiable.",
+            "El acceso como invitado existe para que cualquiera pueda empezar de inmediato, sin barreras innecesarias.",
+            "Los usuarios con sesión iniciada y correo verificado reciben un límite gratuito más alto, pensado para un uso continuo.",
+          ],
+        },
+        {
+          title: "Información del operador y dirección futura",
+          paragraphs: [
+            "AlloraTools es operado por PLANB-John como un servicio gestionado de forma individual en https://www.alloratools.com.",
+            "La evolución del servicio se realiza de forma gradual, según necesidades observadas en el uso real.",
+            "A largo plazo, el objetivo es ampliar AlloraTools desde la conversión de PDF hacia una plataforma más amplia de herramientas para archivos y documentos.",
+          ],
         },
       ],
     },
@@ -241,25 +333,48 @@ export const infoDocuments: Record<Locale, InfoDocuments> = {
   de: {
     about: {
       title: "Über AlloraTools",
-      intro: "AlloraTools ist ein webbasiertes Datei- und Utility-Angebot, das direkt im Browser einfach nutzbar ist.",
+      intro:
+        "AlloraTools ist ein webbasiertes Dienstangebot für Datei- und Dokumentaufgaben, das direkt im Browser genutzt werden kann. Die Nutzung ist ohne Registrierung als Gast möglich, während Kontonutzer von einer kontinuierlicheren Nutzung profitieren.",
       sections: [
         {
-          title: "Was der Dienst bietet",
+          title: "Was AlloraTools ist",
           paragraphs: [
-            "Die aktuelle Kernfunktion ist die PDF-zu-JPG-Konvertierung, mit der sich PDF-Seiten unkompliziert in Bilder umwandeln lassen.",
-            "Wir setzen auf praktische Werkzeuge mit klarer, einfacher Bedienung.",
+            "AlloraTools konzentriert sich auf praktische Datei- und Dokumentabläufe, die im Alltag häufig gebraucht werden.",
+            "Der Dienst soll typische Aufgaben ohne zusätzliche Installation und ohne unnötige Komplexität lösbar machen.",
+            "Es handelt sich um einen individuell betriebenen Web-Utility-Service mit klarem Fokus auf Nutzbarkeit.",
           ],
         },
         {
-          title: "Ausblick",
+          title: "Aktuelle Kernfunktion: PDF zu JPG",
           paragraphs: [
-            "Im Laufe der Zeit kann AlloraTools weitere Online-Tools ergänzen, basierend auf realen Nutzerbedürfnissen.",
-            "Dabei stehen Einfachheit, Zugänglichkeit und praktischer Nutzen im Mittelpunkt.",
+            "Derzeit steht die Umwandlung von PDF-Seiten in JPG-Bilder im Mittelpunkt.",
+            "Das ist hilfreich, wenn Seiten als Bild geteilt, visuelle Inhalte extrahiert oder Dokumente seitenweise weiterverarbeitet werden sollen.",
+            "Der Ablauf ist bewusst klar gehalten, damit auch neue Nutzer schnell zu einem Ergebnis kommen.",
           ],
         },
         {
-          title: "Betreiberinformationen",
-          bullets: ["Betreiber: PLANB-John", "Betriebsform: Einzelbetreiber", "Domain: https://www.alloratools.com"],
+          title: "Für wen der Dienst gedacht ist",
+          paragraphs: [
+            "AlloraTools richtet sich an Studierende, Büroangestellte, Freelancer und alle, die schnelle Dokumentkonvertierung benötigen.",
+            "Die Plattform ist sowohl für gelegentliche Nutzung als auch für wiederkehrende Arbeitsabläufe ausgelegt.",
+            "Durch Mehrsprachigkeit bleibt die Nutzung auch bei unterschiedlichen Sprachpräferenzen zugänglich.",
+          ],
+        },
+        {
+          title: "Produktprinzipien und Kontomodell",
+          paragraphs: [
+            "Leitprinzipien sind Einfachheit, Zugänglichkeit, gute Bedienbarkeit und eine verlässliche Nutzererfahrung.",
+            "Gastzugang ist verfügbar, damit Nutzer ohne Hürden sofort starten können.",
+            "Angemeldete und per E-Mail verifizierte Nutzer erhalten ein höheres kostenloses Nutzungslimit für kontinuierlichere Verwendung.",
+          ],
+        },
+        {
+          title: "Betreiberinformationen und Ausrichtung",
+          paragraphs: [
+            "AlloraTools wird von PLANB-John als individuell betriebenem Service unter https://www.alloratools.com geführt.",
+            "Die Weiterentwicklung erfolgt schrittweise auf Basis realer Nutzungsanforderungen.",
+            "Langfristig soll sich der Dienst von der PDF-Konvertierung zu einer breiteren Multi-Tool-Plattform für Datei- und Dokumentaufgaben entwickeln.",
+          ],
         },
       ],
     },
